@@ -1,628 +1,646 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
   <title>ZenFit</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f3f4f6; min-height: 100vh; }
-    #root { max-width: 480px; margin: 0 auto; background: #f3f4f6; min-height: 100vh; }
-    input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { -webkit-appearance: none; }
-    ::-webkit-scrollbar { width: 0; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f3f4f6;min-height:100vh}
+    #root{max-width:480px;margin:0 auto;background:#f3f4f6;min-height:100vh}
+    input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{-webkit-appearance:none}
+    ::-webkit-scrollbar{width:0}
+    .btn{cursor:pointer;border:none;outline:none}
   </style>
 </head>
 <body>
 <div id="root"></div>
-<script type="text/babel">
-const { useState, useEffect } = React;
+<script>
+// ─── Minimal React 18 CDN loader ───────────────────────────────────────────
+(function(){
+  function loadScript(src,cb){
+    var s=document.createElement('script');s.src=src;s.onload=cb;document.head.appendChild(s);
+  }
+  loadScript('https://unpkg.com/react@18/umd/react.production.min.js',function(){
+    loadScript('https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',function(){
+      init();
+    });
+  });
+})();
 
-const EXERCISE_REPO = {
-  "Chest": [
-    { name: "Push Up", emoji: "💪", type: "Bodyweight" },
-    { name: "Wide Push Up", emoji: "💪", type: "Bodyweight" },
-    { name: "Diamond Push Up", emoji: "💪", type: "Bodyweight" },
-    { name: "Decline Push Up", emoji: "💪", type: "Bodyweight" },
-    { name: "Incline Push Up", emoji: "💪", type: "Bodyweight" },
-    { name: "Bench Press (Barbell)", emoji: "🏋️", type: "Strength" },
-    { name: "Incline Bench Press", emoji: "🏋️", type: "Strength" },
-    { name: "Incline Dumbbell Press (30deg)", emoji: "💪", type: "Strength" },
-    { name: "Flat Dumbbell Press", emoji: "💪", type: "Strength" },
-    { name: "Machine Chest Press", emoji: "🏋️", type: "Strength" },
-    { name: "Cable Chest Fly", emoji: "🎯", type: "Strength" },
-    { name: "Dumbbell Fly", emoji: "💪", type: "Strength" },
-    { name: "Chest Dip", emoji: "💪", type: "Bodyweight" },
-    { name: "Pec Dec Machine", emoji: "🏋️", type: "Strength" },
+function init(){
+var h=React.createElement;
+var useState=React.useState;
+var useEffect=React.useEffect;
+
+// ─── Data ──────────────────────────────────────────────────────────────────
+var REPO={
+  "Chest":[
+    {name:"Push Up",e:"💪",type:"Bodyweight"},
+    {name:"Wide Push Up",e:"💪",type:"Bodyweight"},
+    {name:"Diamond Push Up",e:"💪",type:"Bodyweight"},
+    {name:"Decline Push Up",e:"💪",type:"Bodyweight"},
+    {name:"Incline Push Up",e:"💪",type:"Bodyweight"},
+    {name:"Bench Press (Barbell)",e:"🏋️",type:"Strength"},
+    {name:"Incline Bench Press",e:"🏋️",type:"Strength"},
+    {name:"Incline Dumbbell Press 30deg",e:"💪",type:"Strength"},
+    {name:"Flat Dumbbell Press",e:"💪",type:"Strength"},
+    {name:"Machine Chest Press",e:"🏋️",type:"Strength"},
+    {name:"Cable Chest Fly",e:"🎯",type:"Strength"},
+    {name:"Dumbbell Fly",e:"💪",type:"Strength"},
+    {name:"Chest Dip",e:"💪",type:"Bodyweight"},
+    {name:"Pec Dec Machine",e:"🏋️",type:"Strength"},
   ],
-  "Back": [
-    { name: "Pull Up", emoji: "⬆️", type: "Bodyweight" },
-    { name: "Chin Up", emoji: "⬆️", type: "Bodyweight" },
-    { name: "Inverted Row", emoji: "💪", type: "Bodyweight" },
-    { name: "Lat Pulldown (wide grip)", emoji: "🏋️", type: "Strength" },
-    { name: "Lat Pulldown (close grip)", emoji: "🏋️", type: "Strength" },
-    { name: "Single-Arm Lat Pulldown", emoji: "💪", type: "Strength" },
-    { name: "Straight-Arm Band Pulldown", emoji: "💪", type: "Strength" },
-    { name: "Chest-Supported DB Row", emoji: "🏋️", type: "Strength" },
-    { name: "Barbell Bent-Over Row", emoji: "🏋️", type: "Strength" },
-    { name: "Single-Arm Dumbbell Row", emoji: "💪", type: "Strength" },
-    { name: "Single-Arm Cable Row", emoji: "💪", type: "Strength" },
-    { name: "Seated Cable Row", emoji: "🏋️", type: "Strength" },
-    { name: "Cable Face Pull", emoji: "🎯", type: "Strength" },
-    { name: "Rack Pull", emoji: "🏋️", type: "Strength" },
+  "Back":[
+    {name:"Pull Up",e:"⬆️",type:"Bodyweight"},
+    {name:"Chin Up",e:"⬆️",type:"Bodyweight"},
+    {name:"Inverted Row",e:"💪",type:"Bodyweight"},
+    {name:"Lat Pulldown wide grip",e:"🏋️",type:"Strength"},
+    {name:"Lat Pulldown close grip",e:"🏋️",type:"Strength"},
+    {name:"Single-Arm Lat Pulldown",e:"💪",type:"Strength"},
+    {name:"Straight-Arm Band Pulldown",e:"💪",type:"Strength"},
+    {name:"Chest-Supported DB Row",e:"🏋️",type:"Strength"},
+    {name:"Barbell Bent-Over Row",e:"🏋️",type:"Strength"},
+    {name:"Single-Arm Dumbbell Row",e:"💪",type:"Strength"},
+    {name:"Single-Arm Cable Row",e:"💪",type:"Strength"},
+    {name:"Seated Cable Row",e:"🏋️",type:"Strength"},
+    {name:"Cable Face Pull",e:"🎯",type:"Strength"},
+    {name:"Rack Pull",e:"🏋️",type:"Strength"},
   ],
-  "Shoulders": [
-    { name: "Pike Push Up", emoji: "💪", type: "Bodyweight" },
-    { name: "Wall Slides", emoji: "🧱", type: "Bodyweight" },
-    { name: "Band Pull-Apart", emoji: "🎯", type: "Bodyweight" },
-    { name: "Banded External Rotation", emoji: "🔄", type: "Bodyweight" },
-    { name: "Seated DB Shoulder Press", emoji: "🏋️", type: "Strength" },
-    { name: "Barbell Overhead Press", emoji: "🏋️", type: "Strength" },
-    { name: "Arnold Press", emoji: "💪", type: "Strength" },
-    { name: "Cable Lateral Raise", emoji: "💪", type: "Strength" },
-    { name: "Dumbbell Lateral Raise", emoji: "💪", type: "Strength" },
-    { name: "Front Raise", emoji: "💪", type: "Strength" },
-    { name: "Rear Delt Fly", emoji: "💪", type: "Strength" },
-    { name: "Machine Shoulder Press", emoji: "🏋️", type: "Strength" },
+  "Shoulders":[
+    {name:"Pike Push Up",e:"💪",type:"Bodyweight"},
+    {name:"Wall Slides",e:"🧱",type:"Bodyweight"},
+    {name:"Band Pull-Apart",e:"🎯",type:"Bodyweight"},
+    {name:"Banded External Rotation",e:"🔄",type:"Bodyweight"},
+    {name:"Seated DB Shoulder Press",e:"🏋️",type:"Strength"},
+    {name:"Barbell Overhead Press",e:"🏋️",type:"Strength"},
+    {name:"Arnold Press",e:"💪",type:"Strength"},
+    {name:"Cable Lateral Raise",e:"💪",type:"Strength"},
+    {name:"Dumbbell Lateral Raise",e:"💪",type:"Strength"},
+    {name:"Front Raise",e:"💪",type:"Strength"},
+    {name:"Rear Delt Fly",e:"💪",type:"Strength"},
+    {name:"Machine Shoulder Press",e:"🏋️",type:"Strength"},
   ],
-  "Arms - Biceps": [
-    { name: "Resistance Band Curl", emoji: "💪", type: "Bodyweight" },
-    { name: "Seated DB Bicep Curl", emoji: "💪", type: "Strength" },
-    { name: "Standing Barbell Curl", emoji: "🏋️", type: "Strength" },
-    { name: "Hammer Curl", emoji: "💪", type: "Strength" },
-    { name: "Concentration Curl", emoji: "💪", type: "Strength" },
-    { name: "Incline Dumbbell Curl", emoji: "💪", type: "Strength" },
-    { name: "Cable Curl", emoji: "🎯", type: "Strength" },
-    { name: "Preacher Curl", emoji: "🏋️", type: "Strength" },
-    { name: "Zottman Curl", emoji: "💪", type: "Strength" },
+  "Arms Biceps":[
+    {name:"Resistance Band Curl",e:"💪",type:"Bodyweight"},
+    {name:"Seated DB Bicep Curl",e:"💪",type:"Strength"},
+    {name:"Standing Barbell Curl",e:"🏋️",type:"Strength"},
+    {name:"Hammer Curl",e:"💪",type:"Strength"},
+    {name:"Concentration Curl",e:"💪",type:"Strength"},
+    {name:"Incline Dumbbell Curl",e:"💪",type:"Strength"},
+    {name:"Cable Curl",e:"🎯",type:"Strength"},
+    {name:"Preacher Curl",e:"🏋️",type:"Strength"},
+    {name:"Zottman Curl",e:"💪",type:"Strength"},
   ],
-  "Arms - Triceps": [
-    { name: "Diamond Push Up", emoji: "💪", type: "Bodyweight" },
-    { name: "Bench Dip", emoji: "💪", type: "Bodyweight" },
-    { name: "Tricep Dip", emoji: "💪", type: "Bodyweight" },
-    { name: "Overhead Cable Tricep Extension", emoji: "💪", type: "Strength" },
-    { name: "Skull Crusher", emoji: "🏋️", type: "Strength" },
-    { name: "Cable Tricep Pushdown", emoji: "🎯", type: "Strength" },
-    { name: "Overhead DB Tricep Extension", emoji: "💪", type: "Strength" },
-    { name: "Close-Grip Bench Press", emoji: "🏋️", type: "Strength" },
+  "Arms Triceps":[
+    {name:"Bench Dip",e:"💪",type:"Bodyweight"},
+    {name:"Tricep Dip",e:"💪",type:"Bodyweight"},
+    {name:"Overhead Cable Tricep Extension",e:"💪",type:"Strength"},
+    {name:"Skull Crusher",e:"🏋️",type:"Strength"},
+    {name:"Cable Tricep Pushdown",e:"🎯",type:"Strength"},
+    {name:"Overhead DB Tricep Extension",e:"💪",type:"Strength"},
+    {name:"Close-Grip Bench Press",e:"🏋️",type:"Strength"},
   ],
-  "Glutes": [
-    { name: "Bodyweight Glute Bridge", emoji: "🍑", type: "Bodyweight" },
-    { name: "Single-Leg Glute Bridge", emoji: "🍑", type: "Bodyweight" },
-    { name: "Donkey Kick", emoji: "🍑", type: "Bodyweight" },
-    { name: "Fire Hydrant", emoji: "🍑", type: "Bodyweight" },
-    { name: "Banded Clamshells", emoji: "🦵", type: "Bodyweight" },
-    { name: "Banded Lateral Walk", emoji: "↔️", type: "Bodyweight" },
-    { name: "Lateral Band Walk", emoji: "↔️", type: "Bodyweight" },
-    { name: "Cable Kickback", emoji: "🍑", type: "Strength" },
-    { name: "Barbell Hip Thrust", emoji: "🍑", type: "Strength" },
-    { name: "Hip Abduction Machine", emoji: "🍑", type: "Strength" },
-    { name: "Romanian Deadlift", emoji: "🏋️", type: "Strength" },
-    { name: "Cable Pull-Through", emoji: "🎯", type: "Strength" },
-    { name: "Sumo Deadlift", emoji: "🏋️", type: "Strength" },
-    { name: "Sumo Squat", emoji: "🦵", type: "Strength" },
+  "Glutes":[
+    {name:"Bodyweight Glute Bridge",e:"🍑",type:"Bodyweight"},
+    {name:"Single-Leg Glute Bridge",e:"🍑",type:"Bodyweight"},
+    {name:"Donkey Kick",e:"🍑",type:"Bodyweight"},
+    {name:"Fire Hydrant",e:"🍑",type:"Bodyweight"},
+    {name:"Banded Clamshells",e:"🦵",type:"Bodyweight"},
+    {name:"Banded Lateral Walk",e:"↔️",type:"Bodyweight"},
+    {name:"Lateral Band Walk",e:"↔️",type:"Bodyweight"},
+    {name:"Cable Kickback",e:"🍑",type:"Strength"},
+    {name:"Barbell Hip Thrust",e:"🍑",type:"Strength"},
+    {name:"Hip Abduction Machine",e:"🍑",type:"Strength"},
+    {name:"Romanian Deadlift",e:"🏋️",type:"Strength"},
+    {name:"Cable Pull-Through",e:"🎯",type:"Strength"},
+    {name:"Sumo Deadlift",e:"🏋️",type:"Strength"},
+    {name:"Sumo Squat",e:"🦵",type:"Strength"},
   ],
-  "Quads": [
-    { name: "Bodyweight Squat", emoji: "🦵", type: "Bodyweight" },
-    { name: "Jump Squat", emoji: "🦵", type: "Bodyweight" },
-    { name: "BW Split Squat Hold", emoji: "🦵", type: "Bodyweight" },
-    { name: "Walking Lunge", emoji: "🦵", type: "Bodyweight" },
-    { name: "Reverse Lunge", emoji: "🦵", type: "Bodyweight" },
-    { name: "Wall Sit", emoji: "🧱", type: "Bodyweight" },
-    { name: "Leg Press (45deg sled)", emoji: "🏋️", type: "Strength" },
-    { name: "Single-Leg Leg Press", emoji: "🦵", type: "Strength" },
-    { name: "Bulgarian Split Squat (DBs)", emoji: "🦵", type: "Strength" },
-    { name: "Dumbbell Step-Up", emoji: "🦵", type: "Strength" },
-    { name: "Leg Extension (unilateral)", emoji: "🦵", type: "Strength" },
-    { name: "Leg Extension (bilateral)", emoji: "🦵", type: "Strength" },
-    { name: "Barbell Back Squat", emoji: "🏋️", type: "Strength" },
-    { name: "Goblet Squat", emoji: "🏋️", type: "Strength" },
-    { name: "Hack Squat", emoji: "🏋️", type: "Strength" },
+  "Quads":[
+    {name:"Bodyweight Squat",e:"🦵",type:"Bodyweight"},
+    {name:"Jump Squat",e:"🦵",type:"Bodyweight"},
+    {name:"BW Split Squat Hold",e:"🦵",type:"Bodyweight"},
+    {name:"Walking Lunge",e:"🦵",type:"Bodyweight"},
+    {name:"Reverse Lunge",e:"🦵",type:"Bodyweight"},
+    {name:"Wall Sit",e:"🧱",type:"Bodyweight"},
+    {name:"Leg Press 45deg",e:"🏋️",type:"Strength"},
+    {name:"Single-Leg Leg Press",e:"🦵",type:"Strength"},
+    {name:"Bulgarian Split Squat DBs",e:"🦵",type:"Strength"},
+    {name:"Dumbbell Step-Up",e:"🦵",type:"Strength"},
+    {name:"Leg Extension unilateral",e:"🦵",type:"Strength"},
+    {name:"Leg Extension bilateral",e:"🦵",type:"Strength"},
+    {name:"Barbell Back Squat",e:"🏋️",type:"Strength"},
+    {name:"Goblet Squat",e:"🏋️",type:"Strength"},
+    {name:"Hack Squat",e:"🏋️",type:"Strength"},
   ],
-  "Hamstrings": [
-    { name: "Nordic Curl", emoji: "🦵", type: "Bodyweight" },
-    { name: "Good Morning", emoji: "🦵", type: "Bodyweight" },
-    { name: "Single-Leg Romanian DL", emoji: "🏋️", type: "Strength" },
-    { name: "Seated Leg Curl (unilateral)", emoji: "🦵", type: "Strength" },
-    { name: "Seated Leg Curl (bilateral)", emoji: "🦵", type: "Strength" },
-    { name: "Lying Leg Curl", emoji: "🦵", type: "Strength" },
-    { name: "Deadlift", emoji: "🏋️", type: "Strength" },
-    { name: "Stiff-Leg Deadlift", emoji: "🏋️", type: "Strength" },
-    { name: "Cable Pull-Through", emoji: "🎯", type: "Strength" },
+  "Hamstrings":[
+    {name:"Nordic Curl",e:"🦵",type:"Bodyweight"},
+    {name:"Good Morning",e:"🦵",type:"Bodyweight"},
+    {name:"Single-Leg Romanian DL",e:"🏋️",type:"Strength"},
+    {name:"Seated Leg Curl unilateral",e:"🦵",type:"Strength"},
+    {name:"Seated Leg Curl bilateral",e:"🦵",type:"Strength"},
+    {name:"Lying Leg Curl",e:"🦵",type:"Strength"},
+    {name:"Deadlift",e:"🏋️",type:"Strength"},
+    {name:"Stiff-Leg Deadlift",e:"🏋️",type:"Strength"},
+    {name:"Cable Pull-Through",e:"🎯",type:"Strength"},
   ],
-  "Core": [
-    { name: "Plank", emoji: "🧘", type: "Bodyweight" },
-    { name: "Side Plank", emoji: "🧘", type: "Bodyweight" },
-    { name: "Dead Bug", emoji: "🧘", type: "Bodyweight" },
-    { name: "Bird Dog", emoji: "🐦", type: "Bodyweight" },
-    { name: "McGill Curl-Up", emoji: "🧘", type: "Bodyweight" },
-    { name: "Hollow Body Hold", emoji: "🧘", type: "Bodyweight" },
-    { name: "Leg Raise", emoji: "🧘", type: "Bodyweight" },
-    { name: "Hanging Knee Raise", emoji: "🧘", type: "Bodyweight" },
-    { name: "Mountain Climber", emoji: "⛰️", type: "Bodyweight" },
-    { name: "Bicycle Crunch", emoji: "🧘", type: "Bodyweight" },
-    { name: "Russian Twist", emoji: "🔄", type: "Bodyweight" },
-    { name: "Ab Wheel Rollout", emoji: "🧘", type: "Bodyweight" },
-    { name: "Cat-Cow", emoji: "🧘", type: "Bodyweight" },
-    { name: "Pallof Press", emoji: "🧘", type: "Strength" },
-    { name: "Cable Woodchop", emoji: "🎯", type: "Strength" },
-    { name: "Weighted Crunch", emoji: "🏋️", type: "Strength" },
+  "Core":[
+    {name:"Plank",e:"🧘",type:"Bodyweight"},
+    {name:"Side Plank",e:"🧘",type:"Bodyweight"},
+    {name:"Dead Bug",e:"🧘",type:"Bodyweight"},
+    {name:"Bird Dog",e:"🐦",type:"Bodyweight"},
+    {name:"McGill Curl-Up",e:"🧘",type:"Bodyweight"},
+    {name:"Hollow Body Hold",e:"🧘",type:"Bodyweight"},
+    {name:"Leg Raise",e:"🧘",type:"Bodyweight"},
+    {name:"Hanging Knee Raise",e:"🧘",type:"Bodyweight"},
+    {name:"Mountain Climber",e:"⛰️",type:"Bodyweight"},
+    {name:"Bicycle Crunch",e:"🧘",type:"Bodyweight"},
+    {name:"Russian Twist",e:"🔄",type:"Bodyweight"},
+    {name:"Ab Wheel Rollout",e:"🧘",type:"Bodyweight"},
+    {name:"Cat-Cow",e:"🧘",type:"Bodyweight"},
+    {name:"Pallof Press",e:"🧘",type:"Strength"},
+    {name:"Cable Woodchop",e:"🎯",type:"Strength"},
+    {name:"Weighted Crunch",e:"🏋️",type:"Strength"},
   ],
-  "Mobility and Rehab": [
-    { name: "Hip 90/90 Stretch", emoji: "🧘", type: "Bodyweight" },
-    { name: "Couch Stretch", emoji: "🧘", type: "Bodyweight" },
-    { name: "Pigeon Pose", emoji: "🧘", type: "Bodyweight" },
-    { name: "Thoracic Rotation", emoji: "🔄", type: "Bodyweight" },
-    { name: "Ankle Circles", emoji: "🔄", type: "Bodyweight" },
-    { name: "Hip Flexor Stretch", emoji: "🧘", type: "Bodyweight" },
-    { name: "Foam Roll IT Band", emoji: "🧘", type: "Bodyweight" },
-    { name: "Foam Roll Thoracic Spine", emoji: "🧘", type: "Bodyweight" },
+  "Mobility":[
+    {name:"Hip 90/90 Stretch",e:"🧘",type:"Bodyweight"},
+    {name:"Couch Stretch",e:"🧘",type:"Bodyweight"},
+    {name:"Pigeon Pose",e:"🧘",type:"Bodyweight"},
+    {name:"Thoracic Rotation",e:"🔄",type:"Bodyweight"},
+    {name:"Ankle Circles",e:"🔄",type:"Bodyweight"},
+    {name:"Hip Flexor Stretch",e:"🧘",type:"Bodyweight"},
+    {name:"Foam Roll IT Band",e:"🧘",type:"Bodyweight"},
+    {name:"Foam Roll Thoracic Spine",e:"🧘",type:"Bodyweight"},
   ],
-  "Full Body Cardio": [
-    { name: "Burpee", emoji: "⚡", type: "Bodyweight" },
-    { name: "Jump Rope", emoji: "⚡", type: "Bodyweight" },
-    { name: "Box Jump", emoji: "📦", type: "Bodyweight" },
-    { name: "Bear Crawl", emoji: "🐻", type: "Bodyweight" },
-    { name: "Kettlebell Swing", emoji: "🏋️", type: "Strength" },
-    { name: "Farmers Carry", emoji: "🏋️", type: "Strength" },
-    { name: "Sled Push", emoji: "🏋️", type: "Strength" },
-    { name: "Rowing Machine", emoji: "🚣", type: "Cardio" },
-    { name: "Assault Bike", emoji: "🚴", type: "Cardio" },
-    { name: "Treadmill Sprint", emoji: "🏃", type: "Cardio" },
+  "Cardio":[
+    {name:"Burpee",e:"⚡",type:"Bodyweight"},
+    {name:"Jump Rope",e:"⚡",type:"Bodyweight"},
+    {name:"Box Jump",e:"📦",type:"Bodyweight"},
+    {name:"Bear Crawl",e:"🐻",type:"Bodyweight"},
+    {name:"Kettlebell Swing",e:"🏋️",type:"Strength"},
+    {name:"Farmers Carry",e:"🏋️",type:"Strength"},
+    {name:"Sled Push",e:"🏋️",type:"Strength"},
+    {name:"Rowing Machine",e:"🚣",type:"Cardio"},
+    {name:"Assault Bike",e:"🚴",type:"Cardio"},
+    {name:"Treadmill Sprint",e:"🏃",type:"Cardio"},
   ],
 };
 
-const STORAGE_KEY = "zenfit_workouts";
-const loadWorkouts = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; } };
-const saveWorkouts = (w) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(w)); } catch(e) {} };
+var DAY_LIB={
+  "Day 1 - Glutes & Hams":[
+    {name:"Bodyweight Glute Bridge",e:"🍑"},{name:"Banded Clamshells",e:"🦵"},
+    {name:"Bird Dog",e:"🐦"},{name:"Barbell Hip Thrust",e:"🍑"},
+    {name:"Seated Leg Curl unilateral",e:"🦵"},{name:"Dumbbell Step-Up",e:"🦵"},
+    {name:"Cable Kickback",e:"🍑"},{name:"Pallof Press",e:"🧘"},
+  ],
+  "Day 2 - Push":[
+    {name:"Band Pull-Apart",e:"🎯"},{name:"Wall Slides",e:"🧱"},
+    {name:"Dead Bug",e:"🧘"},{name:"Incline Dumbbell Press 30deg",e:"💪"},
+    {name:"Machine Chest Press",e:"🏋️"},{name:"Seated DB Shoulder Press",e:"🏋️"},
+    {name:"Cable Lateral Raise",e:"💪"},{name:"Overhead Cable Tricep Extension",e:"💪"},
+    {name:"Push Up",e:"💪"},
+  ],
+  "Day 3 - Quads & Glutes":[
+    {name:"BW Split Squat Hold",e:"🦵"},{name:"Banded Lateral Walk",e:"↔️"},
+    {name:"McGill Curl-Up",e:"🧘"},{name:"Leg Press 45deg",e:"🏋️"},
+    {name:"Bulgarian Split Squat DBs",e:"🦵"},{name:"Leg Extension unilateral",e:"🦵"},
+    {name:"Hip Abduction Machine",e:"🍑"},{name:"Sumo Squat",e:"🦵"},
+  ],
+  "Day 4 - Pull":[
+    {name:"Straight-Arm Band Pulldown",e:"💪"},{name:"Banded External Rotation",e:"🔄"},
+    {name:"Cat-Cow",e:"🧘"},{name:"Lat Pulldown wide grip",e:"🏋️"},
+    {name:"Chest-Supported DB Row",e:"🏋️"},{name:"Single-Arm Cable Row",e:"💪"},
+    {name:"Cable Face Pull",e:"🎯"},{name:"Seated DB Bicep Curl",e:"💪"},
+    {name:"Pull Up",e:"⬆️"},
+  ],
+  "Day 5 - Imbalance":[
+    {name:"Single-Leg Glute Bridge",e:"🍑"},{name:"Side Plank",e:"🧘"},
+    {name:"Single-Leg Leg Press",e:"🦵"},{name:"Single-Arm Lat Pulldown",e:"💪"},
+    {name:"Single-Leg Romanian DL",e:"🏋️"},{name:"Lateral Band Walk",e:"↔️"},
+  ],
+};
 
-const TEMPLATES = [
-  { id: 1, name: "Day 1 - Glutes and Hams", exercises: [
-    { name: "Bodyweight Glute Bridge", emoji: "🍑", sets: [{type:"W",w:"",r:"",done:false},{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false}] },
-    { name: "Barbell Hip Thrust", emoji: "🍑", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false},{type:"4",w:"",r:"",done:false}] },
-    { name: "Seated Leg Curl (unilateral)", emoji: "🦵", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Dumbbell Step-Up", emoji: "🦵", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Cable Kickback", emoji: "🍑", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
+var TEMPLATES=[
+  {id:1,name:"Day 1 - Glutes & Hams",exercises:[
+    {name:"Bodyweight Glute Bridge",e:"🍑",sets:[{t:"W"},{t:"1"},{t:"2"}]},
+    {name:"Barbell Hip Thrust",e:"🍑",sets:[{t:"1"},{t:"2"},{t:"3"},{t:"4"}]},
+    {name:"Seated Leg Curl unilateral",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Dumbbell Step-Up",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Cable Kickback",e:"🍑",sets:[{t:"1"},{t:"2"},{t:"3"}]},
   ]},
-  { id: 2, name: "Day 2 - Push", exercises: [
-    { name: "Incline Dumbbell Press (30deg)", emoji: "💪", sets: [{type:"W",w:"",r:"",done:false},{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Machine Chest Press", emoji: "🏋️", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Seated DB Shoulder Press", emoji: "🏋️", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Cable Lateral Raise", emoji: "💪", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Overhead Cable Tricep Extension", emoji: "💪", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
+  {id:2,name:"Day 2 - Push",exercises:[
+    {name:"Incline Dumbbell Press 30deg",e:"💪",sets:[{t:"W"},{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Machine Chest Press",e:"🏋️",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Seated DB Shoulder Press",e:"🏋️",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Cable Lateral Raise",e:"💪",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Overhead Cable Tricep Extension",e:"💪",sets:[{t:"1"},{t:"2"},{t:"3"}]},
   ]},
-  { id: 3, name: "Day 3 - Quads and Glutes", exercises: [
-    { name: "Leg Press (45deg sled)", emoji: "🏋️", sets: [{type:"W",w:"",r:"",done:false},{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Bulgarian Split Squat (DBs)", emoji: "🦵", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Leg Extension (unilateral)", emoji: "🦵", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Hip Abduction Machine", emoji: "🍑", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Sumo Squat", emoji: "🦵", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
+  {id:3,name:"Day 3 - Quads & Glutes",exercises:[
+    {name:"Leg Press 45deg",e:"🏋️",sets:[{t:"W"},{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Bulgarian Split Squat DBs",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Leg Extension unilateral",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Hip Abduction Machine",e:"🍑",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Sumo Squat",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
   ]},
-  { id: 4, name: "Day 4 - Pull", exercises: [
-    { name: "Lat Pulldown (wide grip)", emoji: "🏋️", sets: [{type:"W",w:"",r:"",done:false},{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Chest-Supported DB Row", emoji: "🏋️", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false},{type:"4",w:"",r:"",done:false}] },
-    { name: "Single-Arm Cable Row", emoji: "💪", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Cable Face Pull", emoji: "🎯", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Seated DB Bicep Curl", emoji: "💪", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
+  {id:4,name:"Day 4 - Pull",exercises:[
+    {name:"Lat Pulldown wide grip",e:"🏋️",sets:[{t:"W"},{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Chest-Supported DB Row",e:"🏋️",sets:[{t:"1"},{t:"2"},{t:"3"},{t:"4"}]},
+    {name:"Single-Arm Cable Row",e:"💪",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Cable Face Pull",e:"🎯",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Seated DB Bicep Curl",e:"💪",sets:[{t:"1"},{t:"2"},{t:"3"}]},
   ]},
-  { id: 5, name: "Day 5 - Imbalance", exercises: [
-    { name: "Single-Leg Leg Press", emoji: "🦵", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Single-Arm Lat Pulldown", emoji: "💪", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Single-Leg Romanian DL", emoji: "🏋️", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false},{type:"3",w:"",r:"",done:false}] },
-    { name: "Lateral Band Walk", emoji: "↔️", sets: [{type:"1",w:"",r:"",done:false},{type:"2",w:"",r:"",done:false}] },
+  {id:5,name:"Day 5 - Imbalance",exercises:[
+    {name:"Single-Leg Leg Press",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Single-Arm Lat Pulldown",e:"💪",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Single-Leg Romanian DL",e:"🏋️",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Lateral Band Walk",e:"↔️",sets:[{t:"1"},{t:"2"}]},
   ]},
 ];
 
-const DAY_LIBRARY = {
-  "Day 1 - Glutes and Hams": [
-    {name:"Bodyweight Glute Bridge",emoji:"🍑"},{name:"Banded Clamshells",emoji:"🦵"},
-    {name:"Bird Dog",emoji:"🐦"},{name:"Barbell Hip Thrust",emoji:"🍑"},
-    {name:"Seated Leg Curl (unilateral)",emoji:"🦵"},{name:"Dumbbell Step-Up",emoji:"🦵"},
-    {name:"Cable Kickback",emoji:"🍑"},{name:"Pallof Press",emoji:"🧘"},
-  ],
-  "Day 2 - Push": [
-    {name:"Band Pull-Apart",emoji:"🎯"},{name:"Wall Slides",emoji:"🧱"},
-    {name:"Dead Bug",emoji:"🧘"},{name:"Incline Dumbbell Press (30deg)",emoji:"💪"},
-    {name:"Machine Chest Press",emoji:"🏋️"},{name:"Seated DB Shoulder Press",emoji:"🏋️"},
-    {name:"Cable Lateral Raise",emoji:"💪"},{name:"Overhead Cable Tricep Extension",emoji:"💪"},
-    {name:"Push Up",emoji:"💪"},
-  ],
-  "Day 3 - Quads and Glutes": [
-    {name:"BW Split Squat Hold",emoji:"🦵"},{name:"Banded Lateral Walk",emoji:"↔️"},
-    {name:"McGill Curl-Up",emoji:"🧘"},{name:"Leg Press (45deg sled)",emoji:"🏋️"},
-    {name:"Bulgarian Split Squat (DBs)",emoji:"🦵"},{name:"Leg Extension (unilateral)",emoji:"🦵"},
-    {name:"Hip Abduction Machine",emoji:"🍑"},{name:"Sumo Squat",emoji:"🦵"},
-  ],
-  "Day 4 - Pull": [
-    {name:"Straight-Arm Band Pulldown",emoji:"💪"},{name:"Banded External Rotation",emoji:"🔄"},
-    {name:"Cat-Cow",emoji:"🧘"},{name:"Lat Pulldown (wide grip)",emoji:"🏋️"},
-    {name:"Chest-Supported DB Row",emoji:"🏋️"},{name:"Single-Arm Cable Row",emoji:"💪"},
-    {name:"Cable Face Pull",emoji:"🎯"},{name:"Seated DB Bicep Curl",emoji:"💪"},
-    {name:"Pull Up",emoji:"⬆️"},
-  ],
-  "Day 5 - Imbalance": [
-    {name:"Single-Leg Glute Bridge",emoji:"🍑"},{name:"Side Plank",emoji:"🧘"},
-    {name:"Single-Leg Leg Press",emoji:"🦵"},{name:"Single-Arm Lat Pulldown",emoji:"💪"},
-    {name:"Single-Leg Romanian DL",emoji:"🏋️"},{name:"Lateral Band Walk",emoji:"↔️"},
-  ],
-};
+var SK="zenfit_v2";
+function load(){try{return JSON.parse(localStorage.getItem(SK)||"[]");}catch(e){return[];}}
+function save(w){try{localStorage.setItem(SK,JSON.stringify(w));}catch(e){}}
+function mkSet(t,prev){return{t:t,w:"",r:"",done:false,prev:prev||""};}
+function newEx(ex,prev){return{id:Date.now()+Math.random(),name:ex.name,e:ex.e||"💪",restT:120,sets:[mkSet("1",prev)]};}
 
-function RestTimer({ seconds, onDone }) {
-  const [rem, setRem] = useState(seconds);
-  useEffect(() => {
-    if (rem <= 0) { onDone && onDone(); return; }
-    const t = setTimeout(() => setRem(r => r - 1), 1000);
-    return () => clearTimeout(t);
-  }, [rem]);
-  const pct = (rem / seconds) * 100;
-  return (
-    <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:"#eff6ff",borderRadius:10,margin:"4px 0"}}>
-      <div style={{width:36,height:36,borderRadius:"50%",background:"conic-gradient(#3b82f6 "+pct+"%,#e5e7eb "+pct+"%)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-        <div style={{width:28,height:28,borderRadius:"50%",background:"#eff6ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:"#3b82f6"}}>
-          {Math.floor(rem/60)}:{String(rem%60).padStart(2,"0")}
-        </div>
-      </div>
-      <span style={{fontSize:13,color:"#3b82f6",fontWeight:600}}>Rest timer</span>
-    </div>
+// ─── Rest Timer ────────────────────────────────────────────────────────────
+function RestTimer(props){
+  var sec=props.seconds,onDone=props.onDone;
+  var state=useState(sec);
+  var rem=state[0],setRem=state[1];
+  useEffect(function(){
+    if(rem<=0){onDone&&onDone();return;}
+    var t=setTimeout(function(){setRem(function(r){return r-1;});},1000);
+    return function(){clearTimeout(t);};
+  },[rem]);
+  var pct=(rem/sec)*100;
+  var mm=Math.floor(rem/60),ss=String(rem%60).padStart(2,"0");
+  return h("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:"#eff6ff",borderRadius:10,margin:"4px 0"}},
+    h("div",{style:{width:36,height:36,borderRadius:"50%",background:"conic-gradient(#3b82f6 "+pct+"%, #e5e7eb "+pct+"%)",display:"flex",alignItems:"center",justifyContent:"center"}},
+      h("div",{style:{width:28,height:28,borderRadius:"50%",background:"#eff6ff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:"#3b82f6"}},mm+":"+ss)
+    ),
+    h("span",{style:{fontSize:13,color:"#3b82f6",fontWeight:600}},"Rest timer")
   );
 }
 
-function WTimer({ start }) {
-  const [el, setEl] = useState(0);
-  useEffect(() => {
-    const iv = setInterval(() => setEl(Math.floor((Date.now()-start)/1000)), 1000);
-    return () => clearInterval(iv);
-  }, [start]);
-  const h=Math.floor(el/3600), m=Math.floor((el%3600)/60), s=el%60;
-  return React.createElement("span", null, (h>0?h+":":"") + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0"));
+// ─── Workout Timer ─────────────────────────────────────────────────────────
+function WTimer(props){
+  var start=props.start;
+  var state=useState(0);
+  var el=state[0],setEl=state[1];
+  useEffect(function(){
+    var iv=setInterval(function(){setEl(Math.floor((Date.now()-start)/1000));},1000);
+    return function(){clearInterval(iv);};
+  },[start]);
+  var h2=Math.floor(el/3600),m=Math.floor((el%3600)/60),s=el%60;
+  return h("span",null,(h2>0?h2+":":"")+ String(m).padStart(2,"0")+":"+String(s).padStart(2,"0"));
 }
 
-function App() {
-  const [screen, setScreen] = useState("home");
-  const [tab, setTab] = useState("start");
-  const [workouts, setWorkouts] = useState(() => loadWorkouts());
-  const [viewW, setViewW] = useState(null);
-  const [wName, setWName] = useState("");
-  const [exs, setExs] = useState([]);
-  const [startT, setStartT] = useState(null);
-  const [timers, setTimers] = useState({});
-  const [showAdd, setShowAdd] = useState(false);
-  const [addMode, setAddMode] = useState("day");
-  const [selDay, setSelDay] = useState("");
-  const [repoCat, setRepoCat] = useState("");
-  const [repoQ, setRepoQ] = useState("");
-  const [customN, setCustomN] = useState("");
-  const [showFinish, setShowFinish] = useState(false);
+// ─── Main App ──────────────────────────────────────────────────────────────
+function App(){
+  var s1=useState("home"),screen=s1[0],setScreen=s1[1];
+  var s2=useState("start"),tab=s2[0],setTab=s2[1];
+  var s3=useState(function(){return load();}),workouts=s3[0],setWorkouts=s3[1];
+  var s4=useState(null),viewW=s4[0],setViewW=s4[1];
+  var s5=useState(""),wName=s5[0],setWName=s5[1];
+  var s6=useState([]),exs=s6[0],setExs=s6[1];
+  var s7=useState(null),startT=s7[0],setStartT=s7[1];
+  var s8=useState({}),timers=s8[0],setTimers=s8[1];
+  var s9=useState(false),showAdd=s9[0],setShowAdd=s9[1];
+  var s10=useState("day"),addMode=s10[0],setAddMode=s10[1];
+  var s11=useState(""),selDay=s11[0],setSelDay=s11[1];
+  var s12=useState(""),repoCat=s12[0],setRepoCat=s12[1];
+  var s13=useState(""),repoQ=s13[0],setRepoQ=s13[1];
+  var s14=useState(""),customN=s14[0],setCustomN=s14[1];
+  var s15=useState(false),showFinish=s15[0],setShowFinish=s15[1];
 
-  const dateLabel = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
-  const vol = (arr) => arr.reduce((a,e)=>a+e.sets.reduce((b,s)=>b+(parseFloat(s.w)||0)*(parseInt(s.r)||0),0),0);
-  const setCount = (arr) => arr.reduce((a,e)=>a+e.sets.length,0);
+  var dateLabel=new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
 
-  const getPrev = (name) => {
-    const sorted = [...workouts].sort((a,b)=>b.id-a.id);
-    for (const w of sorted) {
-      const f = w.exs?.find(e=>e.name===name);
-      if (f) {
-        const v = f.sets.filter(s=>s.w&&s.r);
-        if (v.length) {
-          const best = [...v].sort((a,b)=>(parseFloat(b.w)*parseInt(b.r))-(parseFloat(a.w)*parseInt(a.r)))[0];
+  function vol(arr){return arr.reduce(function(a,e){return a+e.sets.reduce(function(b,s){return b+(parseFloat(s.w)||0)*(parseInt(s.r)||0);},0);},0);}
+  function sCount(arr){return arr.reduce(function(a,e){return a+e.sets.length;},0);}
+
+  function getPrev(name){
+    var sorted=[].concat(workouts).sort(function(a,b){return b.id-a.id;});
+    for(var i=0;i<sorted.length;i++){
+      var w=sorted[i];
+      var f=w.exs&&w.exs.find(function(e){return e.name===name;});
+      if(f){
+        var v=f.sets.filter(function(s){return s.w&&s.r;});
+        if(v.length){
+          var best=v.slice().sort(function(a,b){return (parseFloat(b.w)*parseInt(b.r))-(parseFloat(a.w)*parseInt(a.r));})[0];
           return best.w+"lb x "+best.r;
         }
       }
     }
     return "";
-  };
+  }
 
-  const startTmpl = (tmpl) => {
+  function startTmpl(tmpl){
     setStartT(Date.now()); setWName(tmpl.name);
-    setExs(tmpl.exercises.map((e,i)=>({id:Date.now()+i,name:e.name,emoji:e.emoji,restT:120,sets:e.sets.map(s=>({...s,prev:getPrev(e.name)}))})));
+    setExs(tmpl.exercises.map(function(e,i){
+      var prev=getPrev(e.name);
+      return {id:Date.now()+i,name:e.name,e:e.e,restT:120,
+        sets:e.sets.map(function(s){return mkSet(s.t,prev);})};
+    }));
     setTimers({}); setShowAdd(false); setScreen("workout");
-  };
+  }
 
-  const startEmpty = () => {
+  function startEmpty(){
     setStartT(Date.now()); setWName("My Workout"); setExs([]); setTimers({}); setShowAdd(false); setScreen("workout");
-  };
+  }
 
-  const addEx = (exObj) => {
-    setExs(p=>[...p,{id:Date.now(),name:exObj.name,emoji:exObj.emoji||"💪",restT:120,sets:[{type:"1",prev:getPrev(exObj.name),w:"",r:"",done:false}]}]);
+  function addEx(exObj){
+    var prev=getPrev(exObj.name);
+    setExs(function(p){return p.concat([{id:Date.now(),name:exObj.name,e:exObj.e||"💪",restT:120,sets:[mkSet("1",prev)]}]);});
     setShowAdd(false); setSelDay(""); setCustomN(""); setRepoCat(""); setRepoQ(""); setAddMode("day");
-  };
+  }
 
-  const updSet = (eid,si,f,v) => setExs(p=>p.map(e=>e.id===eid?{...e,sets:e.sets.map((s,i)=>i===si?{...s,[f]:v}:s)}:e));
+  function updSet(eid,si,f,v){
+    setExs(function(p){return p.map(function(e){
+      if(e.id!==eid)return e;
+      return Object.assign({},e,{sets:e.sets.map(function(s,i){
+        if(i!==si)return s;
+        var o=Object.assign({},s); o[f]=v; return o;
+      })});
+    });});
+  }
 
-  const togDone = (eid,si) => setExs(p=>p.map(e=>{
-    if(e.id!==eid) return e;
-    const nd=!e.sets[si].done;
-    const ns=e.sets.map((s,i)=>i===si?{...s,done:nd}:s);
-    if(nd) setTimers(t=>({...t,[eid+"-"+si]:true}));
-    else setTimers(t=>{const c={...t};delete c[eid+"-"+si];return c;});
-    return {...e,sets:ns};
-  }));
+  function togDone(eid,si){
+    setExs(function(p){return p.map(function(e){
+      if(e.id!==eid)return e;
+      var nd=!e.sets[si].done;
+      var ns=e.sets.map(function(s,i){return i===si?Object.assign({},s,{done:nd}):s;});
+      if(nd)setTimers(function(t){var c=Object.assign({},t); c[eid+"-"+si]=true; return c;});
+      else setTimers(function(t){var c=Object.assign({},t); delete c[eid+"-"+si]; return c;});
+      return Object.assign({},e,{sets:ns});
+    });});
+  }
 
-  const addSet = (eid) => setExs(p=>p.map(e=>{
-    if(e.id!==eid) return e;
-    return {...e,sets:[...e.sets,{type:String(e.sets.length+1),prev:getPrev(e.name),w:"",r:"",done:false}]};
-  }));
+  function addSet(eid){
+    setExs(function(p){return p.map(function(e){
+      if(e.id!==eid)return e;
+      var prev=getPrev(e.name);
+      return Object.assign({},e,{sets:e.sets.concat([mkSet(String(e.sets.length+1),prev)])});
+    });});
+  }
 
-  const saveW = () => {
-    if(!exs.length) return;
-    const dur=Math.round((Date.now()-startT)/60000);
-    const w={id:Date.now(),name:wName,date:dateLabel,dur,exs,vol:vol(exs),sets:setCount(exs)};
-    setWorkouts(p=>{const u=[w,...p];saveWorkouts(u);return u;});
+  function saveW(){
+    if(!exs.length)return;
+    var dur=Math.round((Date.now()-startT)/60000);
+    var w={id:Date.now(),name:wName,date:dateLabel,dur:dur,exs:exs,vol:vol(exs),sets:sCount(exs)};
+    setWorkouts(function(p){var u=[w].concat(p); save(u); return u;});
     setShowFinish(false); setScreen("home");
-  };
+  }
 
-  const discardW = () => {setShowFinish(false); setScreen("home");};
+  // ── STYLES helpers ─────────────────────────────────────────────
+  var C={blue:"#3b82f6",green:"#22c55e",red:"#ef4444",gray:"#6b7280",lightGray:"#f3f4f6",border:"#e5e7eb"};
 
-  if (screen==="workout") return (
-    <div style={{paddingBottom:40}}>
-      {showFinish && (
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-          <div style={{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:360,textAlign:"center"}}>
-            <div style={{fontSize:40,marginBottom:12}}>🏁</div>
-            <div style={{fontWeight:800,fontSize:20,marginBottom:8}}>Finish Workout?</div>
-            <div style={{color:"#6b7280",fontSize:14,marginBottom:20}}>{exs.length} exercise{exs.length!==1?"s":""} · {setCount(exs)} sets · {vol(exs).toLocaleString()} lbs</div>
-            <button onClick={saveW} style={{width:"100%",padding:14,background:"#22c55e",color:"#fff",border:"none",borderRadius:12,fontWeight:700,fontSize:16,cursor:"pointer",marginBottom:8}}>Save Workout</button>
-            <button onClick={discardW} style={{width:"100%",padding:12,background:"#fee2e2",color:"#ef4444",border:"none",borderRadius:12,fontWeight:600,fontSize:14,cursor:"pointer",marginBottom:8}}>Discard and Exit</button>
-            <button onClick={()=>setShowFinish(false)} style={{width:"100%",padding:12,background:"#f3f4f6",color:"#6b7280",border:"none",borderRadius:12,fontWeight:600,fontSize:14,cursor:"pointer"}}>Keep Training</button>
-          </div>
-        </div>
-      )}
-      <div style={{position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"1px solid #e5e7eb",padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <button onClick={()=>setScreen("home")} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"#3b82f6"}}>&#8617;</button>
-        <div style={{textAlign:"center"}}>
-          <div style={{fontWeight:800,fontSize:16}}>{wName}</div>
-          <div style={{fontSize:12,color:"#6b7280"}}>{startT && <WTimer start={startT}/>}</div>
-        </div>
-        <button onClick={()=>setShowFinish(true)} style={{background:exs.length?"#22c55e":"#9ca3af",color:"#fff",border:"none",borderRadius:10,padding:"8px 16px",fontWeight:700,fontSize:14,cursor:"pointer"}}>Finish</button>
-      </div>
-      <div style={{padding:"12px 16px"}}>
-        <div style={{fontSize:13,color:"#9ca3af",marginBottom:12}}>📅 {dateLabel}</div>
-        {exs.map(ex=>(
-          <div key={ex.id} style={{background:"#fff",borderRadius:16,padding:16,marginBottom:12,boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-              <div style={{fontWeight:700,fontSize:16}}>{ex.emoji} {ex.name}</div>
-              <div style={{display:"flex",gap:4}}>
-                {[60,120].map(rt=>(
-                  <button key={rt} onClick={()=>setExs(p=>p.map(e=>e.id===ex.id?{...e,restT:rt}:e))}
-                    style={{padding:"4px 10px",border:"none",borderRadius:8,background:ex.restT===rt?"#3b82f6":"#f3f4f6",color:ex.restT===rt?"#fff":"#6b7280",fontWeight:700,fontSize:11,cursor:"pointer"}}>
-                    {rt===60?"1 min":"2 min"}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"40px 1fr 70px 70px 36px",gap:4,marginBottom:4}}>
-              {["Set","Previous","lbs","Reps","✓"].map(h=>(
-                <div key={h} style={{textAlign:"center",fontSize:11,fontWeight:600,color:"#9ca3af"}}>{h}</div>
-              ))}
-            </div>
-            {ex.sets.map((s,i)=>{
-              const rk=ex.id+"-"+i;
-              return (
-                <div key={i}>
-                  <div style={{display:"grid",gridTemplateColumns:"40px 1fr 70px 70px 36px",gap:4,alignItems:"center",marginBottom:2}}>
-                    <div style={{textAlign:"center",fontWeight:700,fontSize:13,color:"#6b7280"}}>{s.type}</div>
-                    <div style={{textAlign:"center",fontSize:11,color:"#9ca3af",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.prev||"—"}</div>
-                    <input value={s.w} onChange={e=>updSet(ex.id,i,"w",e.target.value)} inputMode="decimal" placeholder="0"
-                      style={{textAlign:"center",fontWeight:700,fontSize:15,border:"none",background:s.done?"#d1fae5":"#f3f4f6",borderRadius:8,outline:"none",width:"100%",padding:"7px 2px"}}/>
-                    <input value={s.r} onChange={e=>updSet(ex.id,i,"r",e.target.value)} inputMode="numeric" placeholder="0"
-                      style={{textAlign:"center",fontWeight:700,fontSize:15,border:"none",background:s.done?"#d1fae5":"#f3f4f6",borderRadius:8,outline:"none",width:"100%",padding:"7px 2px"}}/>
-                    <div onClick={()=>togDone(ex.id,i)}
-                      style={{width:26,height:26,borderRadius:6,background:s.done?"#22c55e":"#e5e7eb",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",margin:"0 auto",color:"#fff",fontSize:14,fontWeight:700}}>
-                      {s.done&&"✓"}
-                    </div>
-                  </div>
-                  {timers[rk]&&<RestTimer seconds={ex.restT} onDone={()=>setTimers(t=>{const c={...t};delete c[rk];return c;})}/>}
-                  {!timers[rk]&&i<ex.sets.length-1&&<div style={{textAlign:"center",fontSize:11,color:"#d1d5db",padding:"2px 0"}}>{ex.restT===60?"1:00":"2:00"} rest</div>}
-                </div>
-              );
-            })}
-            <button onClick={()=>addSet(ex.id)} style={{marginTop:8,width:"100%",padding:"10px",background:"#f3f4f6",border:"none",borderRadius:10,color:"#374151",fontWeight:700,fontSize:13,cursor:"pointer"}}>+ Add Set</button>
-          </div>
-        ))}
-        {!showAdd&&<button onClick={()=>setShowAdd(true)} style={{width:"100%",padding:14,background:"#fff",border:"2px dashed #d1d5db",borderRadius:12,color:"#6b7280",fontWeight:600,fontSize:15,cursor:"pointer"}}>+ Add Exercise</button>}
-        {showAdd&&(
-          <div style={{background:"#fff",borderRadius:16,padding:16,boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>
-            <div style={{fontWeight:700,fontSize:16,marginBottom:12}}>Add Exercise</div>
-            <div style={{display:"flex",background:"#f3f4f6",borderRadius:12,padding:4,marginBottom:14,gap:4}}>
-              {[{k:"day",label:"📋 My Days"},{k:"repo",label:"🏛️ Library"},{k:"custom",label:"✏️ Custom"}].map(m=>(
-                <button key={m.k} onClick={()=>{setAddMode(m.k);setSelDay("");setRepoCat("");setRepoQ("");}}
-                  style={{flex:1,padding:"7px 4px",border:"none",borderRadius:10,background:addMode===m.k?"#fff":"transparent",color:addMode===m.k?"#111":"#6b7280",fontWeight:700,fontSize:11,cursor:"pointer",boxShadow:addMode===m.k?"0 1px 4px rgba(0,0,0,0.06)":"none"}}>
-                  {m.label}
-                </button>
-              ))}
-            </div>
-            {addMode==="day"&&(
-              <div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>
-                  {Object.keys(DAY_LIBRARY).map(d=>(
-                    <button key={d} onClick={()=>setSelDay(d)}
-                      style={{padding:"5px 11px",borderRadius:20,border:"none",cursor:"pointer",background:selDay===d?"#3b82f6":"#f3f4f6",color:selDay===d?"#fff":"#374151",fontWeight:600,fontSize:11}}>
-                      {d}
-                    </button>
-                  ))}
-                </div>
-                {selDay&&(
-                  <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:220,overflowY:"auto"}}>
-                    {DAY_LIBRARY[selDay].map(e=>(
-                      <button key={e.name} onClick={()=>addEx(e)}
-                        style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:10,border:"1px solid #e5e7eb",background:"#f9fafb",cursor:"pointer",textAlign:"left"}}>
-                        <span>{e.emoji}</span><span style={{fontWeight:600,fontSize:14}}>{e.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-            {addMode==="repo"&&(
-              <div>
-                <input value={repoQ} onChange={e=>setRepoQ(e.target.value)} placeholder="Search exercises..."
-                  style={{width:"100%",padding:"9px 12px",borderRadius:10,border:"1px solid #d1d5db",fontSize:14,outline:"none",marginBottom:10}}/>
-                {!repoQ&&(
-                  <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>
-                    {Object.keys(EXERCISE_REPO).map(cat=>(
-                      <button key={cat} onClick={()=>setRepoCat(repoCat===cat?"":cat)}
-                        style={{padding:"4px 9px",borderRadius:20,border:"none",cursor:"pointer",background:repoCat===cat?"#3b82f6":"#f3f4f6",color:repoCat===cat?"#fff":"#374151",fontWeight:600,fontSize:10}}>
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:220,overflowY:"auto"}}>
-                  {(()=>{
-                    let entries=[];
-                    if(repoQ.trim()){Object.entries(EXERCISE_REPO).forEach(([cat,list])=>list.forEach(e=>{if(e.name.toLowerCase().includes(repoQ.toLowerCase()))entries.push({...e,_cat:cat});}));}
-                    else{const cats=repoCat?[repoCat]:Object.keys(EXERCISE_REPO);cats.forEach(cat=>EXERCISE_REPO[cat].forEach(e=>entries.push({...e,_cat:cat})));}
-                    return entries.map((e,i)=>(
-                      <button key={i} onClick={()=>addEx(e)}
-                        style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",borderRadius:10,border:"1px solid #e5e7eb",background:"#f9fafb",cursor:"pointer",textAlign:"left"}}>
-                        <span>{e.emoji}</span>
-                        <div><div style={{fontWeight:600,fontSize:14}}>{e.name}</div><div style={{fontSize:11,color:"#9ca3af"}}>{e.type} · {e._cat}</div></div>
-                      </button>
-                    ));
-                  })()}
-                </div>
-              </div>
-            )}
-            {addMode==="custom"&&(
-              <div>
-                <div style={{fontSize:13,color:"#6b7280",marginBottom:8}}>Type any exercise name:</div>
-                <input value={customN} onChange={e=>setCustomN(e.target.value)}
-                  onKeyDown={e=>{if(e.key==="Enter"&&customN.trim())addEx({name:customN.trim(),emoji:"💪"});}}
-                  placeholder="e.g. Cable Glute Kickback..."
-                  style={{width:"100%",padding:"10px 12px",borderRadius:10,border:"1px solid #d1d5db",fontSize:14,outline:"none",marginBottom:10}}/>
-                <button onClick={()=>customN.trim()&&addEx({name:customN.trim(),emoji:"💪"})} disabled={!customN.trim()}
-                  style={{width:"100%",padding:12,background:customN.trim()?"#3b82f6":"#d1d5db",color:"#fff",border:"none",borderRadius:10,fontWeight:700,fontSize:15,cursor:customN.trim()?"pointer":"not-allowed"}}>
-                  + Add "{customN||"Exercise"}"
-                </button>
-              </div>
-            )}
-            <button onClick={()=>{setShowAdd(false);setSelDay("");setAddMode("day");setRepoCat("");setRepoQ("");}}
-              style={{marginTop:12,width:"100%",padding:10,background:"#f3f4f6",border:"none",borderRadius:8,color:"#6b7280",fontWeight:600,cursor:"pointer"}}>Cancel</button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  function btn(style,onClick,children){return h("button",{style:Object.assign({cursor:"pointer",border:"none",outline:"none"},style),onClick:onClick},children);}
 
-  if (screen==="detail"&&viewW) return (
-    <div style={{padding:16}}>
-      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}>
-        <button onClick={()=>setScreen("home")} style={{background:"none",border:"none",fontSize:24,cursor:"pointer",color:"#3b82f6"}}>&#8249;</button>
-        <div>
-          <div style={{fontWeight:800,fontSize:18}}>{viewW.name}</div>
-          <div style={{fontSize:13,color:"#6b7280"}}>{viewW.date} · {viewW.dur} min</div>
-        </div>
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:16}}>
-        {[{l:"Duration",v:viewW.dur+"m"},{l:"Volume",v:viewW.vol.toLocaleString()+" lbs"},{l:"Sets",v:viewW.sets}].map(x=>(
-          <div key={x.l} style={{background:"#fff",borderRadius:12,padding:12,textAlign:"center"}}>
-            <div style={{fontWeight:800,fontSize:18}}>{x.v}</div>
-            <div style={{fontSize:12,color:"#6b7280"}}>{x.l}</div>
-          </div>
-        ))}
-      </div>
-      {viewW.exs.map((ex,i)=>(
-        <div key={i} style={{background:"#fff",borderRadius:14,padding:14,marginBottom:10}}>
-          <div style={{fontWeight:700,fontSize:15,marginBottom:8}}>{ex.emoji} {ex.name}</div>
-          {ex.sets.map((s,j)=>(
-            <div key={j} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:j<ex.sets.length-1?"1px solid #f3f4f6":"none",fontSize:14}}>
-              <span style={{color:"#6b7280",fontWeight:600}}>Set {s.type}</span>
-              <span>{s.w?s.w+"lbs":"BW"} x {s.r||"?"} reps {s.done&&<span style={{color:"#22c55e"}}>✓</span>}</span>
-            </div>
-          ))}
-        </div>
-      ))}
-      <button onClick={()=>{setWorkouts(p=>p.filter(w=>w.id!==viewW.id));setScreen("home");}}
-        style={{width:"100%",padding:14,background:"#fee2e2",border:"none",borderRadius:12,color:"#ef4444",fontWeight:700,cursor:"pointer",marginTop:8}}>
-        Delete Workout
-      </button>
-    </div>
-  );
+  // ── WORKOUT SCREEN ─────────────────────────────────────────────
+  if(screen==="workout"){
+    var finishModal=showFinish&&h("div",{style:{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
+      h("div",{style:{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:360,textAlign:"center"}},
+        h("div",{style:{fontSize:40,marginBottom:12}},"🏁"),
+        h("div",{style:{fontWeight:800,fontSize:20,marginBottom:8}},"Finish Workout?"),
+        h("div",{style:{color:C.gray,fontSize:14,marginBottom:20}},exs.length+" exercise"+(exs.length!==1?"s":"")+" · "+sCount(exs)+" sets · "+vol(exs).toLocaleString()+" lbs"),
+        btn({width:"100%",padding:14,background:C.green,color:"#fff",borderRadius:12,fontWeight:700,fontSize:16,marginBottom:8},saveW,"Save Workout"),
+        btn({width:"100%",padding:12,background:"#fee2e2",color:C.red,borderRadius:12,fontWeight:600,fontSize:14,marginBottom:8},function(){setShowFinish(false);setScreen("home");},"Discard & Exit"),
+        btn({width:"100%",padding:12,background:C.lightGray,color:C.gray,borderRadius:12,fontWeight:600,fontSize:14},function(){setShowFinish(false);},"Keep Training")
+      )
+    );
 
-  return (
-    <div>
-      <div style={{background:"#3b82f6",padding:"20px 16px 16px",color:"#fff"}}>
-        <div style={{fontWeight:900,fontSize:26}}>ZenFit 🏋️</div>
-      </div>
-      <div style={{display:"flex",background:"#fff",borderBottom:"1px solid #e5e7eb"}}>
-        {["start","history"].map(t=>(
-          <button key={t} onClick={()=>setTab(t)}
-            style={{flex:1,padding:"12px 0",fontWeight:700,fontSize:14,background:"none",border:"none",cursor:"pointer",borderBottom:tab===t?"2px solid #3b82f6":"2px solid transparent",color:tab===t?"#3b82f6":"#9ca3af",textTransform:"capitalize"}}>
-            {t==="start"?"Start":"History"}
-          </button>
-        ))}
-      </div>
-      <div style={{padding:16}}>
-        {tab==="start"&&(
-          <>
-            <div style={{marginBottom:20}}>
-              <div style={{fontWeight:700,fontSize:13,color:"#9ca3af",marginBottom:8,textTransform:"uppercase",letterSpacing:1}}>Quick Start</div>
-              <button onClick={startEmpty} style={{width:"100%",padding:14,background:"#3b82f6",color:"#fff",border:"none",borderRadius:12,fontWeight:700,fontSize:16,cursor:"pointer"}}>+ Start Empty Workout</button>
-            </div>
-            <div style={{marginBottom:20}}>
-              <div style={{fontWeight:700,fontSize:13,color:"#9ca3af",marginBottom:8,textTransform:"uppercase",letterSpacing:1}}>My Templates</div>
-              <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                {TEMPLATES.map(t=>(
-                  <button key={t.id} onClick={()=>startTmpl(t)}
-                    style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:14,padding:14,textAlign:"left",cursor:"pointer",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
-                    <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>{t.name}</div>
-                    <div style={{fontSize:12,color:"#9ca3af"}}>{t.exercises.slice(0,3).map(e=>e.name).join(", ")}{t.exercises.length>3?" & "+(t.exercises.length-3)+" more...":""}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-            {workouts.length>0&&(
-              <div>
-                <div style={{fontWeight:700,fontSize:13,color:"#9ca3af",marginBottom:8,textTransform:"uppercase",letterSpacing:1}}>Recent</div>
-                {workouts.slice(0,2).map(w=>(
-                  <button key={w.id} onClick={()=>{setViewW(w);setScreen("detail");}}
-                    style={{display:"block",width:"100%",background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:12,padding:14,marginBottom:8,textAlign:"left",cursor:"pointer"}}>
-                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-                      <span style={{fontWeight:700,fontSize:14}}>{w.name}</span>
-                      <span style={{fontSize:12,color:"#9ca3af"}}>{w.date}</span>
-                    </div>
-                    <div style={{fontSize:12,color:"#6b7280"}}>⏱ {w.dur} min · 🏋️ {w.exs?.length||0} exercises · {(w.vol||0).toLocaleString()} lbs</div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-        {tab==="history"&&(
-          workouts.length===0?(
-            <div style={{textAlign:"center",padding:60,color:"#9ca3af"}}>
-              <div style={{fontSize:48,marginBottom:12}}>📋</div>
-              <div style={{fontWeight:700,fontSize:18,marginBottom:6}}>No workouts yet</div>
-              <div style={{fontSize:14}}>Complete your first workout to see it here.</div>
-            </div>
-          ):(
-            <div>
-              {workouts.map(w=>(
-                <button key={w.id} onClick={()=>{setViewW(w);setScreen("detail");}}
-                  style={{display:"block",width:"100%",background:"#fff",border:"1px solid #e5e7eb",borderRadius:14,padding:14,marginBottom:10,textAlign:"left",cursor:"pointer",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
-                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
-                    <span style={{fontWeight:700,fontSize:15}}>{w.name}</span>
-                    <span style={{fontSize:12,color:"#9ca3af"}}>{w.date}</span>
-                  </div>
-                  <div style={{display:"flex",gap:12,fontSize:12,color:"#6b7280"}}>
-                    <span>⏱ {w.dur} min</span>
-                    <span>💪 {w.exs?.length||0} exercises</span>
-                    <span>🏋️ {(w.vol||0).toLocaleString()} lbs</span>
-                  </div>
-                </button>
-              ))}
-            </div>
+    var header=h("div",{style:{position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"1px solid "+C.border,padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}},
+      btn({background:"none",fontSize:22,color:C.blue,padding:"4px 8px"},function(){setScreen("home");},"↩"),
+      h("div",{style:{textAlign:"center"}},
+        h("div",{style:{fontWeight:800,fontSize:16}},wName),
+        h("div",{style:{fontSize:12,color:C.gray}},startT&&h(WTimer,{start:startT}))
+      ),
+      btn({background:exs.length?C.green:"#9ca3af",color:"#fff",borderRadius:10,padding:"8px 16px",fontWeight:700,fontSize:14},function(){setShowFinish(true);},"Finish")
+    );
+
+    var exCards=exs.map(function(ex){
+      return h("div",{key:ex.id,style:{background:"#fff",borderRadius:16,padding:16,marginBottom:12,boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}},
+        h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}},
+          h("div",{style:{fontWeight:700,fontSize:16}},ex.e+" "+ex.name),
+          h("div",{style:{display:"flex",gap:4}},
+            [60,120].map(function(rt){
+              return btn({padding:"4px 10px",borderRadius:8,background:ex.restT===rt?C.blue:C.lightGray,color:ex.restT===rt?"#fff":C.gray,fontWeight:700,fontSize:11},
+                function(){setExs(function(p){return p.map(function(e){return e.id===ex.id?Object.assign({},e,{restT:rt}):e;});});},
+                rt===60?"1 min":"2 min");
+            })
           )
-        )}
-      </div>
-    </div>
+        ),
+        h("div",{style:{display:"grid",gridTemplateColumns:"40px 1fr 70px 70px 36px",gap:4,marginBottom:4}},
+          ["Set","Prev","lbs","Reps","\u2713"].map(function(hd){return h("div",{key:hd,style:{textAlign:"center",fontSize:11,fontWeight:600,color:"#9ca3af"}},hd);})
+        ),
+        ex.sets.map(function(s,i){
+          var rk=ex.id+"-"+i;
+          return h("div",{key:i},
+            h("div",{style:{display:"grid",gridTemplateColumns:"40px 1fr 70px 70px 36px",gap:4,alignItems:"center",marginBottom:2}},
+              h("div",{style:{textAlign:"center",fontWeight:700,fontSize:13,color:C.gray}},s.t),
+              h("div",{style:{textAlign:"center",fontSize:11,color:"#9ca3af",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},s.prev||"—"),
+              h("input",{value:s.w,inputMode:"decimal",placeholder:"0",onChange:function(ev){updSet(ex.id,i,"w",ev.target.value);},
+                style:{textAlign:"center",fontWeight:700,fontSize:15,border:"none",background:s.done?"#d1fae5":C.lightGray,borderRadius:8,outline:"none",width:"100%",padding:"7px 2px"}}),
+              h("input",{value:s.r,inputMode:"numeric",placeholder:"0",onChange:function(ev){updSet(ex.id,i,"r",ev.target.value);},
+                style:{textAlign:"center",fontWeight:700,fontSize:15,border:"none",background:s.done?"#d1fae5":C.lightGray,borderRadius:8,outline:"none",width:"100%",padding:"7px 2px"}}),
+              h("div",{onClick:function(){togDone(ex.id,i);},
+                style:{width:26,height:26,borderRadius:6,background:s.done?C.green:"#e5e7eb",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",margin:"0 auto",color:"#fff",fontSize:14,fontWeight:700}},
+                s.done?"\u2713":"")
+            ),
+            timers[rk]&&h(RestTimer,{seconds:ex.restT,onDone:function(){setTimers(function(t){var c=Object.assign({},t);delete c[rk];return c;});}}),
+            !timers[rk]&&i<ex.sets.length-1&&h("div",{style:{textAlign:"center",fontSize:11,color:"#d1d5db",padding:"2px 0"}},(ex.restT===60?"1:00":"2:00")+" rest")
+          );
+        }),
+        btn({marginTop:8,width:"100%",padding:10,background:C.lightGray,borderRadius:10,color:"#374151",fontWeight:700,fontSize:13},function(){addSet(ex.id);},"+ Add Set")
+      );
+    });
+
+    var addPanel=showAdd&&h("div",{style:{background:"#fff",borderRadius:16,padding:16,boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}},
+      h("div",{style:{fontWeight:700,fontSize:16,marginBottom:12}},"Add Exercise"),
+      h("div",{style:{display:"flex",background:C.lightGray,borderRadius:12,padding:4,marginBottom:14,gap:4}},
+        [{k:"day",label:"📋 My Days"},{k:"repo",label:"🏛️ Library"},{k:"custom",label:"✏️ Custom"}].map(function(m){
+          return btn({flex:1,padding:"7px 4px",borderRadius:10,background:addMode===m.k?"#fff":"transparent",color:addMode===m.k?"#111":C.gray,fontWeight:700,fontSize:11,boxShadow:addMode===m.k?"0 1px 4px rgba(0,0,0,0.06)":"none"},
+            function(){setAddMode(m.k);setSelDay("");setRepoCat("");setRepoQ("");},m.label);
+        })
+      ),
+      addMode==="day"&&h("div",null,
+        h("div",{style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}},
+          Object.keys(DAY_LIB).map(function(d){
+            return btn({padding:"5px 11px",borderRadius:20,background:selDay===d?C.blue:C.lightGray,color:selDay===d?"#fff":"#374151",fontWeight:600,fontSize:11},
+              function(){setSelDay(d);},d);
+          })
+        ),
+        selDay&&h("div",{style:{display:"flex",flexDirection:"column",gap:6,maxHeight:220,overflowY:"auto"}},
+          DAY_LIB[selDay].map(function(e){
+            return btn({display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:10,border:"1px solid "+C.border,background:"#f9fafb",textAlign:"left",width:"100%"},
+              function(){addEx(e);},e.e+" "+e.name);
+          })
+        )
+      ),
+      addMode==="repo"&&h("div",null,
+        h("input",{value:repoQ,placeholder:"Search exercises...",onChange:function(ev){setRepoQ(ev.target.value);},
+          style:{width:"100%",padding:"9px 12px",borderRadius:10,border:"1px solid #d1d5db",fontSize:14,outline:"none",marginBottom:10}}),
+        !repoQ&&h("div",{style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}},
+          Object.keys(REPO).map(function(cat){
+            return btn({padding:"4px 9px",borderRadius:20,background:repoCat===cat?C.blue:C.lightGray,color:repoCat===cat?"#fff":"#374151",fontWeight:600,fontSize:10},
+              function(){setRepoCat(repoCat===cat?"":cat);},cat);
+          })
+        ),
+        h("div",{style:{display:"flex",flexDirection:"column",gap:6,maxHeight:220,overflowY:"auto"}},
+          (function(){
+            var entries=[];
+            if(repoQ.trim()){
+              Object.keys(REPO).forEach(function(cat){REPO[cat].forEach(function(e){if(e.name.toLowerCase().indexOf(repoQ.toLowerCase())>=0)entries.push(Object.assign({},e,{_cat:cat}));});});
+            } else {
+              var cats=repoCat?[repoCat]:Object.keys(REPO);
+              cats.forEach(function(cat){REPO[cat].forEach(function(e){entries.push(Object.assign({},e,{_cat:cat}));});});
+            }
+            return entries.map(function(e,i){
+              return btn({display:"flex",alignItems:"center",gap:10,padding:"8px 12px",borderRadius:10,border:"1px solid "+C.border,background:"#f9fafb",textAlign:"left",width:"100%"},
+                function(){addEx(e);},
+                h("div",null,h("div",{style:{fontWeight:600,fontSize:14}},e.e+" "+e.name),h("div",{style:{fontSize:11,color:"#9ca3af"}},e.type+" · "+e._cat)));
+            });
+          })()
+        )
+      ),
+      addMode==="custom"&&h("div",null,
+        h("div",{style:{fontSize:13,color:C.gray,marginBottom:8}},"Type any exercise name:"),
+        h("input",{value:customN,placeholder:"e.g. Cable Glute Kickback...",onChange:function(ev){setCustomN(ev.target.value);},
+          onKeyDown:function(ev){if(ev.key==="Enter"&&customN.trim())addEx({name:customN.trim(),e:"💪"});},
+          style:{width:"100%",padding:"10px 12px",borderRadius:10,border:"1px solid #d1d5db",fontSize:14,outline:"none",marginBottom:10}}),
+        btn({width:"100%",padding:12,background:customN.trim()?C.blue:"#d1d5db",color:"#fff",borderRadius:10,fontWeight:700,fontSize:15},
+          function(){if(customN.trim())addEx({name:customN.trim(),e:"💪"});},
+          '+ Add "'+( customN||"Exercise")+'"')
+      ),
+      btn({marginTop:12,width:"100%",padding:10,background:C.lightGray,borderRadius:8,color:C.gray,fontWeight:600},
+        function(){setShowAdd(false);setSelDay("");setAddMode("day");setRepoCat("");setRepoQ("");},"Cancel")
+    );
+
+    return h("div",{style:{paddingBottom:40}},
+      finishModal, header,
+      h("div",{style:{padding:"12px 16px"}},
+        h("div",{style:{fontSize:13,color:"#9ca3af",marginBottom:12}},"📅 "+dateLabel),
+        exCards,
+        !showAdd&&btn({width:"100%",padding:14,background:"#fff",border:"2px dashed #d1d5db",borderRadius:12,color:C.gray,fontWeight:600,fontSize:15},function(){setShowAdd(true);},"+ Add Exercise"),
+        addPanel
+      )
+    );
+  }
+
+  // ── DETAIL SCREEN ──────────────────────────────────────────────
+  if(screen==="detail"&&viewW){
+    return h("div",{style:{padding:16}},
+      h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:16}},
+        btn({background:"none",fontSize:24,color:C.blue,padding:"4px 8px"},function(){setScreen("home");},"‹"),
+        h("div",null,
+          h("div",{style:{fontWeight:800,fontSize:18}},viewW.name),
+          h("div",{style:{fontSize:13,color:C.gray}},viewW.date+" · "+viewW.dur+" min")
+        )
+      ),
+      h("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:16}},
+        [{l:"Duration",v:viewW.dur+"m"},{l:"Volume",v:viewW.vol.toLocaleString()+" lbs"},{l:"Sets",v:viewW.sets}].map(function(x){
+          return h("div",{key:x.l,style:{background:"#fff",borderRadius:12,padding:12,textAlign:"center"}},
+            h("div",{style:{fontWeight:800,fontSize:18}},x.v),
+            h("div",{style:{fontSize:12,color:C.gray}},x.l)
+          );
+        })
+      ),
+      viewW.exs.map(function(ex,i){
+        return h("div",{key:i,style:{background:"#fff",borderRadius:14,padding:14,marginBottom:10}},
+          h("div",{style:{fontWeight:700,fontSize:15,marginBottom:8}},ex.e+" "+ex.name),
+          ex.sets.map(function(s,j){
+            return h("div",{key:j,style:{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:j<ex.sets.length-1?"1px solid #f3f4f6":"none",fontSize:14}},
+              h("span",{style:{color:C.gray,fontWeight:600}},"Set "+s.t),
+              h("span",null,(s.w?s.w+"lbs":"BW")+" x "+(s.r||"?")+" reps "+(s.done?"\u2713":""))
+            );
+          })
+        );
+      }),
+      btn({width:"100%",padding:14,background:"#fee2e2",borderRadius:12,color:C.red,fontWeight:700,marginTop:8},
+        function(){setWorkouts(function(p){var u=p.filter(function(w){return w.id!==viewW.id;});save(u);return u;});setScreen("home");},"Delete Workout")
+    );
+  }
+
+  // ── HOME SCREEN ────────────────────────────────────────────────
+  return h("div",null,
+    h("div",{style:{background:C.blue,padding:"20px 16px 16px",color:"#fff"}},
+      h("div",{style:{fontWeight:900,fontSize:28}},"ZenFit 🏋️"),
+      h("div",{style:{fontSize:13,opacity:0.8,marginTop:2}},"Your personal gym tracker")
+    ),
+    h("div",{style:{display:"flex",background:"#fff",borderBottom:"1px solid "+C.border}},
+      ["start","history"].map(function(t){
+        return btn({flex:1,padding:"12px 0",fontWeight:700,fontSize:14,background:"none",borderBottom:tab===t?"2px solid "+C.blue:"2px solid transparent",color:tab===t?C.blue:"#9ca3af",textTransform:"capitalize"},
+          function(){setTab(t);},t==="start"?"Start":"History");
+      })
+    ),
+    h("div",{style:{padding:16}},
+      tab==="start"&&h("div",null,
+        h("div",{style:{marginBottom:20}},
+          h("div",{style:{fontWeight:700,fontSize:12,color:"#9ca3af",marginBottom:8,textTransform:"uppercase",letterSpacing:1}},"Quick Start"),
+          btn({width:"100%",padding:14,background:C.blue,color:"#fff",borderRadius:12,fontWeight:700,fontSize:16},startEmpty,"+ Start Empty Workout")
+        ),
+        h("div",{style:{marginBottom:20}},
+          h("div",{style:{fontWeight:700,fontSize:12,color:"#9ca3af",marginBottom:8,textTransform:"uppercase",letterSpacing:1}},"My Templates"),
+          TEMPLATES.map(function(t){
+            return btn({display:"block",width:"100%",background:"#fff",border:"1px solid "+C.border,borderRadius:14,padding:14,textAlign:"left",marginBottom:8,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"},
+              function(){startTmpl(t);},
+              h("div",null,
+                h("div",{style:{fontWeight:700,fontSize:15,marginBottom:4}},t.name),
+                h("div",{style:{fontSize:12,color:"#9ca3af"}},t.exercises.slice(0,3).map(function(e){return e.name;}).join(", ")+(t.exercises.length>3?" & "+(t.exercises.length-3)+" more...":""))
+              )
+            );
+          })
+        ),
+        workouts.length>0&&h("div",null,
+          h("div",{style:{fontWeight:700,fontSize:12,color:"#9ca3af",marginBottom:8,textTransform:"uppercase",letterSpacing:1}},"Recent"),
+          workouts.slice(0,2).map(function(w){
+            return btn({display:"block",width:"100%",background:"#f9fafb",border:"1px solid "+C.border,borderRadius:12,padding:14,marginBottom:8,textAlign:"left"},
+              function(){setViewW(w);setScreen("detail");},
+              h("div",null,
+                h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:4}},
+                  h("span",{style:{fontWeight:700,fontSize:14}},w.name),
+                  h("span",{style:{fontSize:12,color:"#9ca3af"}},w.date)
+                ),
+                h("div",{style:{fontSize:12,color:C.gray}},"\u23f1 "+w.dur+" min · \uD83C\uDFCB\uFE0F "+(w.exs&&w.exs.length||0)+" exercises · "+(w.vol||0).toLocaleString()+" lbs")
+              )
+            );
+          })
+        )
+      ),
+      tab==="history"&&(
+        workouts.length===0
+          ?h("div",{style:{textAlign:"center",padding:60,color:"#9ca3af"}},
+              h("div",{style:{fontSize:48,marginBottom:12}},"📋"),
+              h("div",{style:{fontWeight:700,fontSize:18,marginBottom:6}},"No workouts yet"),
+              h("div",{style:{fontSize:14}},"Complete your first workout to see it here.")
+            )
+          :h("div",null,
+              workouts.map(function(w){
+                return btn({display:"block",width:"100%",background:"#fff",border:"1px solid "+C.border,borderRadius:14,padding:14,marginBottom:10,textAlign:"left",boxShadow:"0 1px 4px rgba(0,0,0,0.04)"},
+                  function(){setViewW(w);setScreen("detail");},
+                  h("div",null,
+                    h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:6}},
+                      h("span",{style:{fontWeight:700,fontSize:15}},w.name),
+                      h("span",{style:{fontSize:12,color:"#9ca3af"}},w.date)
+                    ),
+                    h("div",{style:{display:"flex",gap:12,fontSize:12,color:C.gray}},
+                      h("span",null,"\u23f1 "+w.dur+" min"),
+                      h("span",null,"\uD83D\uDCAA "+(w.exs&&w.exs.length||0)+" exercises"),
+                      h("span",null,"\uD83C\uDFCB\uFE0F "+(w.vol||0).toLocaleString()+" lbs")
+                    )
+                  )
+                );
+              })
+            )
+      )
+    )
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+ReactDOM.createRoot(document.getElementById("root")).render(h(App,null));
+} // end init
 </script>
 </body>
 </html>
