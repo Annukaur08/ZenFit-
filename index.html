@@ -10,13 +10,11 @@
     #root{max-width:480px;margin:0 auto;background:#f3f4f6;min-height:100vh}
     input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{-webkit-appearance:none}
     ::-webkit-scrollbar{width:0}
-    .btn{cursor:pointer;border:none;outline:none}
   </style>
 </head>
 <body>
 <div id="root"></div>
 <script>
-// ─── Minimal React 18 CDN loader ───────────────────────────────────────────
 (function(){
   function loadScript(src,cb){
     var s=document.createElement('script');s.src=src;s.onload=cb;document.head.appendChild(s);
@@ -33,7 +31,6 @@ var h=React.createElement;
 var useState=React.useState;
 var useEffect=React.useEffect;
 
-// ─── Data ──────────────────────────────────────────────────────────────────
 var REPO={
   "Chest":[
     {name:"Push Up",e:"💪",type:"Bodyweight"},
@@ -66,6 +63,8 @@ var REPO={
     {name:"Seated Cable Row",e:"🏋️",type:"Strength"},
     {name:"Cable Face Pull",e:"🎯",type:"Strength"},
     {name:"Rack Pull",e:"🏋️",type:"Strength"},
+    {name:"Dumbbell Pullover",e:"💪",type:"Strength"},
+    {name:"Seated DB High Pull",e:"💪",type:"Strength"},
   ],
   "Shoulders":[
     {name:"Pike Push Up",e:"💪",type:"Bodyweight"},
@@ -109,7 +108,7 @@ var REPO={
     {name:"Banded Clamshells",e:"🦵",type:"Bodyweight"},
     {name:"Banded Lateral Walk",e:"↔️",type:"Bodyweight"},
     {name:"Lateral Band Walk",e:"↔️",type:"Bodyweight"},
-    {name:"Cable Kickback",e:"🍑",type:"Strength"},
+    {name:"Kickback",e:"🍑",type:"Strength"},
     {name:"Barbell Hip Thrust",e:"🍑",type:"Strength"},
     {name:"Hip Abduction Machine",e:"🍑",type:"Strength"},
     {name:"Romanian Deadlift",e:"🏋️",type:"Strength"},
@@ -128,8 +127,7 @@ var REPO={
     {name:"Single-Leg Leg Press",e:"🦵",type:"Strength"},
     {name:"Bulgarian Split Squat DBs",e:"🦵",type:"Strength"},
     {name:"Dumbbell Step-Up",e:"🦵",type:"Strength"},
-    {name:"Leg Extension unilateral",e:"🦵",type:"Strength"},
-    {name:"Leg Extension bilateral",e:"🦵",type:"Strength"},
+    {name:"Leg Extension",e:"🦵",type:"Strength"},
     {name:"Barbell Back Squat",e:"🏋️",type:"Strength"},
     {name:"Goblet Squat",e:"🏋️",type:"Strength"},
     {name:"Hack Squat",e:"🏋️",type:"Strength"},
@@ -138,8 +136,7 @@ var REPO={
     {name:"Nordic Curl",e:"🦵",type:"Bodyweight"},
     {name:"Good Morning",e:"🦵",type:"Bodyweight"},
     {name:"Single-Leg Romanian DL",e:"🏋️",type:"Strength"},
-    {name:"Seated Leg Curl unilateral",e:"🦵",type:"Strength"},
-    {name:"Seated Leg Curl bilateral",e:"🦵",type:"Strength"},
+    {name:"Seated Leg Curl",e:"🦵",type:"Strength"},
     {name:"Lying Leg Curl",e:"🦵",type:"Strength"},
     {name:"Deadlift",e:"🏋️",type:"Strength"},
     {name:"Stiff-Leg Deadlift",e:"🏋️",type:"Strength"},
@@ -191,70 +188,77 @@ var DAY_LIB={
   "Day 1 - Glutes & Hams":[
     {name:"Bodyweight Glute Bridge",e:"🍑"},{name:"Banded Clamshells",e:"🦵"},
     {name:"Bird Dog",e:"🐦"},{name:"Barbell Hip Thrust",e:"🍑"},
-    {name:"Seated Leg Curl unilateral",e:"🦵"},{name:"Dumbbell Step-Up",e:"🦵"},
-    {name:"Cable Kickback",e:"🍑"},{name:"Pallof Press",e:"🧘"},
+    {name:"Seated Leg Curl",e:"🦵"},{name:"Dumbbell Step-Up",e:"🦵"},
+    {name:"Kickback",e:"🍑"},{name:"Pallof Press",e:"🧘"},
   ],
   "Day 2 - Push":[
     {name:"Band Pull-Apart",e:"🎯"},{name:"Wall Slides",e:"🧱"},
     {name:"Dead Bug",e:"🧘"},{name:"Incline Dumbbell Press 30deg",e:"💪"},
-    {name:"Machine Chest Press",e:"🏋️"},{name:"Seated DB Shoulder Press",e:"🏋️"},
+    {name:"Seated DB Shoulder Press",e:"🏋️"},{name:"Machine Chest Press",e:"🏋️"},
     {name:"Cable Lateral Raise",e:"💪"},{name:"Overhead Cable Tricep Extension",e:"💪"},
     {name:"Push Up",e:"💪"},
   ],
   "Day 3 - Quads & Glutes":[
     {name:"BW Split Squat Hold",e:"🦵"},{name:"Banded Lateral Walk",e:"↔️"},
     {name:"McGill Curl-Up",e:"🧘"},{name:"Leg Press 45deg",e:"🏋️"},
-    {name:"Bulgarian Split Squat DBs",e:"🦵"},{name:"Leg Extension unilateral",e:"🦵"},
+    {name:"Bulgarian Split Squat DBs",e:"🦵"},
     {name:"Hip Abduction Machine",e:"🍑"},{name:"Sumo Squat",e:"🦵"},
   ],
   "Day 4 - Pull":[
     {name:"Straight-Arm Band Pulldown",e:"💪"},{name:"Banded External Rotation",e:"🔄"},
     {name:"Cat-Cow",e:"🧘"},{name:"Lat Pulldown wide grip",e:"🏋️"},
-    {name:"Chest-Supported DB Row",e:"🏋️"},{name:"Single-Arm Cable Row",e:"💪"},
-    {name:"Cable Face Pull",e:"🎯"},{name:"Seated DB Bicep Curl",e:"💪"},
+    {name:"Cable Row",e:"💪"},
+    {name:"Single-Arm Cable Row",e:"💪"},
+    {name:"Seated DB High Pull",e:"💪"},{name:"Seated DB Bicep Curl",e:"💪"},
     {name:"Pull Up",e:"⬆️"},
   ],
   "Day 5 - Imbalance":[
     {name:"Single-Leg Glute Bridge",e:"🍑"},{name:"Side Plank",e:"🧘"},
-    {name:"Single-Leg Leg Press",e:"🦵"},{name:"Single-Arm Lat Pulldown",e:"💪"},
+    {name:"Single-Leg Leg Press",e:"🦵"},{name:"Dumbbell Pullover",e:"💪"},
     {name:"Single-Leg Romanian DL",e:"🏋️"},{name:"Lateral Band Walk",e:"↔️"},
   ],
 };
 
+// ── TEMPLATES with your requested changes ──────────────────────────────────
+// Day 1: No W set on Glute Bridge (just sets 1,2), remove "unilateral" from leg curl, rename kickback
+// Day 2: Shoulder Press BEFORE Machine Chest Press
+// Day 3: Leg Extension removed entirely
+// Day 4: Lat Pulldown has sets 1-4 (no W), Chest-Supported DB Row -> Cable Row, Cable Face Pull -> Seated DB High Pull
+// Day 5: Single-Arm Lat Pulldown -> Dumbbell Pullover
+
 var TEMPLATES=[
-  {id:1,name:"Day 1 - Glutes & Hams",exercises:[
-    {name:"Bodyweight Glute Bridge",e:"🍑",sets:[{t:"W"},{t:"1"},{t:"2"}]},
-    {name:"Barbell Hip Thrust",e:"🍑",sets:[{t:"1"},{t:"2"},{t:"3"},{t:"4"}]},
-    {name:"Seated Leg Curl unilateral",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Dumbbell Step-Up",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Cable Kickback",e:"🍑",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+  {id:1, name:"Day 1 - Glutes & Hams", exercises:[
+    {name:"Bodyweight Glute Bridge", e:"🍑",  sets:[{t:"1"},{t:"2"}]},
+    {name:"Barbell Hip Thrust",       e:"🍑",  sets:[{t:"1"},{t:"2"},{t:"3"},{t:"4"}]},
+    {name:"Seated Leg Curl",          e:"🦵",  sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Dumbbell Step-Up",         e:"🦵",  sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Kickback",                 e:"🍑",  sets:[{t:"1"},{t:"2"},{t:"3"}]},
   ]},
-  {id:2,name:"Day 2 - Push",exercises:[
-    {name:"Incline Dumbbell Press 30deg",e:"💪",sets:[{t:"W"},{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Machine Chest Press",e:"🏋️",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Seated DB Shoulder Press",e:"🏋️",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Cable Lateral Raise",e:"💪",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Overhead Cable Tricep Extension",e:"💪",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+  {id:2, name:"Day 2 - Push", exercises:[
+    {name:"Incline Dumbbell Press 30deg",      e:"💪", sets:[{t:"W"},{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Seated DB Shoulder Press",          e:"🏋️", sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Machine Chest Press",               e:"🏋️", sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Cable Lateral Raise",               e:"💪", sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Overhead Cable Tricep Extension",   e:"💪", sets:[{t:"1"},{t:"2"},{t:"3"}]},
   ]},
-  {id:3,name:"Day 3 - Quads & Glutes",exercises:[
-    {name:"Leg Press 45deg",e:"🏋️",sets:[{t:"W"},{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Bulgarian Split Squat DBs",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Leg Extension unilateral",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Hip Abduction Machine",e:"🍑",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Sumo Squat",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+  {id:3, name:"Day 3 - Quads & Glutes", exercises:[
+    {name:"Leg Press 45deg",           e:"🏋️", sets:[{t:"W"},{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Bulgarian Split Squat DBs", e:"🦵", sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Hip Abduction Machine",     e:"🍑", sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Sumo Squat",                e:"🦵", sets:[{t:"1"},{t:"2"},{t:"3"}]},
   ]},
-  {id:4,name:"Day 4 - Pull",exercises:[
-    {name:"Lat Pulldown wide grip",e:"🏋️",sets:[{t:"W"},{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Chest-Supported DB Row",e:"🏋️",sets:[{t:"1"},{t:"2"},{t:"3"},{t:"4"}]},
-    {name:"Single-Arm Cable Row",e:"💪",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Cable Face Pull",e:"🎯",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Seated DB Bicep Curl",e:"💪",sets:[{t:"1"},{t:"2"},{t:"3"}]},
+  {id:4, name:"Day 4 - Pull", exercises:[
+    {name:"Lat Pulldown wide grip",  e:"🏋️", sets:[{t:"1"},{t:"2"},{t:"3"},{t:"4"}]},
+    {name:"Cable Row",               e:"💪", sets:[{t:"1"},{t:"2"},{t:"3"},{t:"4"}]},
+    {name:"Single-Arm Cable Row",    e:"💪", sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Seated DB High Pull",     e:"💪", sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Seated DB Bicep Curl",    e:"💪", sets:[{t:"1"},{t:"2"},{t:"3"}]},
   ]},
-  {id:5,name:"Day 5 - Imbalance",exercises:[
-    {name:"Single-Leg Leg Press",e:"🦵",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Single-Arm Lat Pulldown",e:"💪",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Single-Leg Romanian DL",e:"🏋️",sets:[{t:"1"},{t:"2"},{t:"3"}]},
-    {name:"Lateral Band Walk",e:"↔️",sets:[{t:"1"},{t:"2"}]},
+  {id:5, name:"Day 5 - Imbalance", exercises:[
+    {name:"Single-Leg Leg Press",    e:"🦵", sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Dumbbell Pullover",       e:"💪", sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Single-Leg Romanian DL",  e:"🏋️", sets:[{t:"1"},{t:"2"},{t:"3"}]},
+    {name:"Lateral Band Walk",       e:"↔️", sets:[{t:"1"},{t:"2"}]},
   ]},
 ];
 
@@ -262,13 +266,10 @@ var SK="zenfit_v2";
 function load(){try{return JSON.parse(localStorage.getItem(SK)||"[]");}catch(e){return[];}}
 function save(w){try{localStorage.setItem(SK,JSON.stringify(w));}catch(e){}}
 function mkSet(t,prev){return{t:t,w:"",r:"",done:false,prev:prev||""};}
-function newEx(ex,prev){return{id:Date.now()+Math.random(),name:ex.name,e:ex.e||"💪",restT:120,sets:[mkSet("1",prev)]};}
 
-// ─── Rest Timer ────────────────────────────────────────────────────────────
 function RestTimer(props){
   var sec=props.seconds,onDone=props.onDone;
-  var state=useState(sec);
-  var rem=state[0],setRem=state[1];
+  var rs=useState(sec); var rem=rs[0],setRem=rs[1];
   useEffect(function(){
     if(rem<=0){onDone&&onDone();return;}
     var t=setTimeout(function(){setRem(function(r){return r-1;});},1000);
@@ -284,20 +285,17 @@ function RestTimer(props){
   );
 }
 
-// ─── Workout Timer ─────────────────────────────────────────────────────────
 function WTimer(props){
   var start=props.start;
-  var state=useState(0);
-  var el=state[0],setEl=state[1];
+  var es=useState(0); var el=es[0],setEl=es[1];
   useEffect(function(){
     var iv=setInterval(function(){setEl(Math.floor((Date.now()-start)/1000));},1000);
     return function(){clearInterval(iv);};
   },[start]);
-  var h2=Math.floor(el/3600),m=Math.floor((el%3600)/60),s=el%60;
-  return h("span",null,(h2>0?h2+":":"")+ String(m).padStart(2,"0")+":"+String(s).padStart(2,"0"));
+  var hh=Math.floor(el/3600),m=Math.floor((el%3600)/60),s=el%60;
+  return h("span",null,(hh>0?hh+":":"")+ String(m).padStart(2,"0")+":"+String(s).padStart(2,"0"));
 }
 
-// ─── Main App ──────────────────────────────────────────────────────────────
 function App(){
   var s1=useState("home"),screen=s1[0],setScreen=s1[1];
   var s2=useState("start"),tab=s2[0],setTab=s2[1];
@@ -316,7 +314,6 @@ function App(){
   var s15=useState(false),showFinish=s15[0],setShowFinish=s15[1];
 
   var dateLabel=new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
-
   function vol(arr){return arr.reduce(function(a,e){return a+e.sets.reduce(function(b,s){return b+(parseFloat(s.w)||0)*(parseInt(s.r)||0);},0);},0);}
   function sCount(arr){return arr.reduce(function(a,e){return a+e.sets.length;},0);}
 
@@ -340,8 +337,7 @@ function App(){
     setStartT(Date.now()); setWName(tmpl.name);
     setExs(tmpl.exercises.map(function(e,i){
       var prev=getPrev(e.name);
-      return {id:Date.now()+i,name:e.name,e:e.e,restT:120,
-        sets:e.sets.map(function(s){return mkSet(s.t,prev);})};
+      return {id:Date.now()+i,name:e.name,e:e.e,restT:120,sets:e.sets.map(function(s){return mkSet(s.t,prev);})};
     }));
     setTimers({}); setShowAdd(false); setScreen("workout");
   }
@@ -359,10 +355,7 @@ function App(){
   function updSet(eid,si,f,v){
     setExs(function(p){return p.map(function(e){
       if(e.id!==eid)return e;
-      return Object.assign({},e,{sets:e.sets.map(function(s,i){
-        if(i!==si)return s;
-        var o=Object.assign({},s); o[f]=v; return o;
-      })});
+      return Object.assign({},e,{sets:e.sets.map(function(s,i){if(i!==si)return s; var o=Object.assign({},s); o[f]=v; return o;})});
     });});
   }
 
@@ -393,12 +386,10 @@ function App(){
     setShowFinish(false); setScreen("home");
   }
 
-  // ── STYLES helpers ─────────────────────────────────────────────
-  var C={blue:"#3b82f6",green:"#22c55e",red:"#ef4444",gray:"#6b7280",lightGray:"#f3f4f6",border:"#e5e7eb"};
-
+  var C={blue:"#3b82f6",green:"#22c55e",red:"#ef4444",gray:"#6b7280",light:"#f3f4f6",border:"#e5e7eb"};
   function btn(style,onClick,children){return h("button",{style:Object.assign({cursor:"pointer",border:"none",outline:"none"},style),onClick:onClick},children);}
 
-  // ── WORKOUT SCREEN ─────────────────────────────────────────────
+  // ── WORKOUT SCREEN ─────────────────────────────────────────────────────────
   if(screen==="workout"){
     var finishModal=showFinish&&h("div",{style:{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",padding:20}},
       h("div",{style:{background:"#fff",borderRadius:20,padding:28,width:"100%",maxWidth:360,textAlign:"center"}},
@@ -407,11 +398,11 @@ function App(){
         h("div",{style:{color:C.gray,fontSize:14,marginBottom:20}},exs.length+" exercise"+(exs.length!==1?"s":"")+" · "+sCount(exs)+" sets · "+vol(exs).toLocaleString()+" lbs"),
         btn({width:"100%",padding:14,background:C.green,color:"#fff",borderRadius:12,fontWeight:700,fontSize:16,marginBottom:8},saveW,"Save Workout"),
         btn({width:"100%",padding:12,background:"#fee2e2",color:C.red,borderRadius:12,fontWeight:600,fontSize:14,marginBottom:8},function(){setShowFinish(false);setScreen("home");},"Discard & Exit"),
-        btn({width:"100%",padding:12,background:C.lightGray,color:C.gray,borderRadius:12,fontWeight:600,fontSize:14},function(){setShowFinish(false);},"Keep Training")
+        btn({width:"100%",padding:12,background:C.light,color:C.gray,borderRadius:12,fontWeight:600,fontSize:14},function(){setShowFinish(false);},"Keep Training")
       )
     );
 
-    var header=h("div",{style:{position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"1px solid "+C.border,padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}},
+    var topBar=h("div",{style:{position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"1px solid "+C.border,padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}},
       btn({background:"none",fontSize:22,color:C.blue,padding:"4px 8px"},function(){setScreen("home");},"↩"),
       h("div",{style:{textAlign:"center"}},
         h("div",{style:{fontWeight:800,fontSize:16}},wName),
@@ -426,7 +417,7 @@ function App(){
           h("div",{style:{fontWeight:700,fontSize:16}},ex.e+" "+ex.name),
           h("div",{style:{display:"flex",gap:4}},
             [60,120].map(function(rt){
-              return btn({padding:"4px 10px",borderRadius:8,background:ex.restT===rt?C.blue:C.lightGray,color:ex.restT===rt?"#fff":C.gray,fontWeight:700,fontSize:11},
+              return btn({padding:"4px 10px",borderRadius:8,background:ex.restT===rt?C.blue:C.light,color:ex.restT===rt?"#fff":C.gray,fontWeight:700,fontSize:11},
                 function(){setExs(function(p){return p.map(function(e){return e.id===ex.id?Object.assign({},e,{restT:rt}):e;});});},
                 rt===60?"1 min":"2 min");
             })
@@ -442,9 +433,9 @@ function App(){
               h("div",{style:{textAlign:"center",fontWeight:700,fontSize:13,color:C.gray}},s.t),
               h("div",{style:{textAlign:"center",fontSize:11,color:"#9ca3af",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},s.prev||"—"),
               h("input",{value:s.w,inputMode:"decimal",placeholder:"0",onChange:function(ev){updSet(ex.id,i,"w",ev.target.value);},
-                style:{textAlign:"center",fontWeight:700,fontSize:15,border:"none",background:s.done?"#d1fae5":C.lightGray,borderRadius:8,outline:"none",width:"100%",padding:"7px 2px"}}),
+                style:{textAlign:"center",fontWeight:700,fontSize:15,border:"none",background:s.done?"#d1fae5":C.light,borderRadius:8,outline:"none",width:"100%",padding:"7px 2px"}}),
               h("input",{value:s.r,inputMode:"numeric",placeholder:"0",onChange:function(ev){updSet(ex.id,i,"r",ev.target.value);},
-                style:{textAlign:"center",fontWeight:700,fontSize:15,border:"none",background:s.done?"#d1fae5":C.lightGray,borderRadius:8,outline:"none",width:"100%",padding:"7px 2px"}}),
+                style:{textAlign:"center",fontWeight:700,fontSize:15,border:"none",background:s.done?"#d1fae5":C.light,borderRadius:8,outline:"none",width:"100%",padding:"7px 2px"}}),
               h("div",{onClick:function(){togDone(ex.id,i);},
                 style:{width:26,height:26,borderRadius:6,background:s.done?C.green:"#e5e7eb",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",margin:"0 auto",color:"#fff",fontSize:14,fontWeight:700}},
                 s.done?"\u2713":"")
@@ -453,13 +444,13 @@ function App(){
             !timers[rk]&&i<ex.sets.length-1&&h("div",{style:{textAlign:"center",fontSize:11,color:"#d1d5db",padding:"2px 0"}},(ex.restT===60?"1:00":"2:00")+" rest")
           );
         }),
-        btn({marginTop:8,width:"100%",padding:10,background:C.lightGray,borderRadius:10,color:"#374151",fontWeight:700,fontSize:13},function(){addSet(ex.id);},"+ Add Set")
+        btn({marginTop:8,width:"100%",padding:10,background:C.light,borderRadius:10,color:"#374151",fontWeight:700,fontSize:13},function(){addSet(ex.id);},"+ Add Set")
       );
     });
 
     var addPanel=showAdd&&h("div",{style:{background:"#fff",borderRadius:16,padding:16,boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}},
       h("div",{style:{fontWeight:700,fontSize:16,marginBottom:12}},"Add Exercise"),
-      h("div",{style:{display:"flex",background:C.lightGray,borderRadius:12,padding:4,marginBottom:14,gap:4}},
+      h("div",{style:{display:"flex",background:C.light,borderRadius:12,padding:4,marginBottom:14,gap:4}},
         [{k:"day",label:"📋 My Days"},{k:"repo",label:"🏛️ Library"},{k:"custom",label:"✏️ Custom"}].map(function(m){
           return btn({flex:1,padding:"7px 4px",borderRadius:10,background:addMode===m.k?"#fff":"transparent",color:addMode===m.k?"#111":C.gray,fontWeight:700,fontSize:11,boxShadow:addMode===m.k?"0 1px 4px rgba(0,0,0,0.06)":"none"},
             function(){setAddMode(m.k);setSelDay("");setRepoCat("");setRepoQ("");},m.label);
@@ -468,7 +459,7 @@ function App(){
       addMode==="day"&&h("div",null,
         h("div",{style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}},
           Object.keys(DAY_LIB).map(function(d){
-            return btn({padding:"5px 11px",borderRadius:20,background:selDay===d?C.blue:C.lightGray,color:selDay===d?"#fff":"#374151",fontWeight:600,fontSize:11},
+            return btn({padding:"5px 11px",borderRadius:20,background:selDay===d?C.blue:C.light,color:selDay===d?"#fff":"#374151",fontWeight:600,fontSize:11},
               function(){setSelDay(d);},d);
           })
         ),
@@ -484,7 +475,7 @@ function App(){
           style:{width:"100%",padding:"9px 12px",borderRadius:10,border:"1px solid #d1d5db",fontSize:14,outline:"none",marginBottom:10}}),
         !repoQ&&h("div",{style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}},
           Object.keys(REPO).map(function(cat){
-            return btn({padding:"4px 9px",borderRadius:20,background:repoCat===cat?C.blue:C.lightGray,color:repoCat===cat?"#fff":"#374151",fontWeight:600,fontSize:10},
+            return btn({padding:"4px 9px",borderRadius:20,background:repoCat===cat?C.blue:C.light,color:repoCat===cat?"#fff":"#374151",fontWeight:600,fontSize:10},
               function(){setRepoCat(repoCat===cat?"":cat);},cat);
           })
         ),
@@ -507,19 +498,19 @@ function App(){
       ),
       addMode==="custom"&&h("div",null,
         h("div",{style:{fontSize:13,color:C.gray,marginBottom:8}},"Type any exercise name:"),
-        h("input",{value:customN,placeholder:"e.g. Cable Glute Kickback...",onChange:function(ev){setCustomN(ev.target.value);},
+        h("input",{value:customN,placeholder:"e.g. Hip Thrust...",onChange:function(ev){setCustomN(ev.target.value);},
           onKeyDown:function(ev){if(ev.key==="Enter"&&customN.trim())addEx({name:customN.trim(),e:"💪"});},
           style:{width:"100%",padding:"10px 12px",borderRadius:10,border:"1px solid #d1d5db",fontSize:14,outline:"none",marginBottom:10}}),
         btn({width:"100%",padding:12,background:customN.trim()?C.blue:"#d1d5db",color:"#fff",borderRadius:10,fontWeight:700,fontSize:15},
           function(){if(customN.trim())addEx({name:customN.trim(),e:"💪"});},
-          '+ Add "'+( customN||"Exercise")+'"')
+          '+ Add "'+(customN||"Exercise")+'"')
       ),
-      btn({marginTop:12,width:"100%",padding:10,background:C.lightGray,borderRadius:8,color:C.gray,fontWeight:600},
+      btn({marginTop:12,width:"100%",padding:10,background:C.light,borderRadius:8,color:C.gray,fontWeight:600},
         function(){setShowAdd(false);setSelDay("");setAddMode("day");setRepoCat("");setRepoQ("");},"Cancel")
     );
 
     return h("div",{style:{paddingBottom:40}},
-      finishModal, header,
+      finishModal, topBar,
       h("div",{style:{padding:"12px 16px"}},
         h("div",{style:{fontSize:13,color:"#9ca3af",marginBottom:12}},"📅 "+dateLabel),
         exCards,
@@ -529,7 +520,7 @@ function App(){
     );
   }
 
-  // ── DETAIL SCREEN ──────────────────────────────────────────────
+  // ── DETAIL SCREEN ──────────────────────────────────────────────────────────
   if(screen==="detail"&&viewW){
     return h("div",{style:{padding:16}},
       h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:16}},
@@ -563,10 +554,10 @@ function App(){
     );
   }
 
-  // ── HOME SCREEN ────────────────────────────────────────────────
+  // ── HOME SCREEN ────────────────────────────────────────────────────────────
   return h("div",null,
     h("div",{style:{background:C.blue,padding:"20px 16px 16px",color:"#fff"}},
-      h("div",{style:{fontWeight:900,fontSize:28}},"ZenFit 🏋️"),
+      h("div",{style:{fontWeight:900,fontSize:28}},"ZenFit \uD83C\uDFCB\uFE0F"),
       h("div",{style:{fontSize:13,opacity:0.8,marginTop:2}},"Your personal gym tracker")
     ),
     h("div",{style:{display:"flex",background:"#fff",borderBottom:"1px solid "+C.border}},
@@ -640,7 +631,7 @@ function App(){
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(h(App,null));
-} // end init
+}
 </script>
 </body>
 </html>
